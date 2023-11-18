@@ -36,4 +36,16 @@ fn main() {
     Solution::new("Day 9: Rope Bridge")
         .solution(|iter| day9::count_unique_positions(iter))
         .run("inputs/day9.txt");
+
+    Solution::new("Day 10: Cathode-Ray Tube")
+        .solution(|iter| day10::get_signal_strengths(iter))
+        .run("inputs/day10.txt");
+
+    Solution::new("Day 12: Hill Climbing Algorithm")
+        .solution(|iter| day12::find_shortest_distance(iter))
+        .run("inputs/day12.txt");
+
+    Solution::new("Day 13: Distress Signal")
+        .solution(|iter| day13::determine_order(iter))
+        .run("inputs/day13.txt");
 }

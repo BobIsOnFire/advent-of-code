@@ -3,7 +3,7 @@ use std::{num::ParseIntError, str::FromStr};
 mod errors;
 pub use errors::{Error, ErrorKind, Lexeme, Result};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Lexer<'a> {
     s: &'a str,
     pos: usize,

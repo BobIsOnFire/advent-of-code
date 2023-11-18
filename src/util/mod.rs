@@ -13,3 +13,6 @@ pub use lexer::Lexer;
 
 mod number_range;
 pub use number_range::NumberRange;
+
+mod vecmatrix;
+pub use vecmatrix::VecMatrix;

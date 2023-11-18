@@ -47,8 +47,14 @@ where
             return Err(err.into());
         }
 
-        println!("Part 1: [{}]", ans1);
-        println!("Part 2: [{}]", ans2);
+        println!("--- Part 1 ---");
+        println!();
+        println!("{}", ans1);
+        println!();
+        println!("--- Part 2 ---");
+        println!();
+        println!("{}", ans2);
+        println!();
 
         Ok(())
     }
