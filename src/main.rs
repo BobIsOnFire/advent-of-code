@@ -48,4 +48,16 @@ fn main() {
     Solution::new("Day 13: Distress Signal")
         .solution(|iter| day13::determine_order(iter))
         .run("inputs/day13.txt");
+
+    Solution::new("Day 14: Regolith Reservoir")
+        .solution(|iter| day14::count_stable_units(iter))
+        .run("inputs/day14.txt");
+
+    // Solution::new("Day 15: Beacon Exclusion Zone")
+    //     .solution(|iter| day15::find_missing_beacon(iter))
+    //     .run("inputs/day15.txt");
+
+    Solution::new("Day 17: Pyroclastic Flow")
+        .solution(|iter| day17::tetris_simulator(iter))
+        .run("inputs/day17.txt");
 }
