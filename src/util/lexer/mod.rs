@@ -51,13 +51,23 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn take(&mut self, len: usize) -> Result<&'a str> {
-        if self.slice().len() < len {
+        if self.slice().len() <= len {
             return Err(Error::eol(self, Lexeme::Symbols(len)));
         }
 
         let ret = &self.slice()[..len];
         self.shift(len);
         Ok(ret)
+    }
+
+    pub fn take_while(&mut self, func: impl Fn(char) -> bool) -> Result<&'a str> {
+        let pos = self
+            .slice()
+            .bytes()
+            .position(|ch| !func(ch as char))
+            .unwrap_or_else(|| self.slice().len());
+
+        self.take(pos)
     }
 
     pub fn take_rest(&mut self) -> Result<&'a str> {

@@ -1,9 +1,9 @@
-use crate::util::{self, MatrixIndex, VecMatrix};
+use crate::util::{self, MatrixIndex};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Tile {
-    Filled,
     Empty,
+    Filled,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -13,72 +13,103 @@ enum RockMove {
     Down,
 }
 
-#[derive(Clone)]
-struct Rock {
-    tilemap: VecMatrix<Tile>,
+const fn create_bitrow<const W: usize>(row: [Tile; W]) -> u16 {
+    debug_assert!(W < u16::BITS as usize);
+
+    // iter() is not a const fn. Sucks
+    // row.iter().fold(0, |acc, x| (acc << 1) & *x as u16)
+
+    let mut bitrow = 0;
+    let mut i = 0;
+    while i < W {
+        bitrow = (bitrow << 1) | row[i] as u16;
+        i += 1;
+    }
+    bitrow
 }
 
-impl Rock {
+const fn create_bitmap<const W: usize, const H: usize>(data: [[Tile; W]; H]) -> [u16; H] {
+    // map() is not a const fn. Sucks
+    // data.map(create_bitrow)
+
+    let mut result = [0; H];
+    let mut i = 0;
+    while i < H {
+        result[i] = create_bitrow(data[i]);
+        i += 1;
+    }
+    result
+}
+
+const fn create_line<const LEN: usize>() -> u16 {
+    create_bitrow([Tile::Filled; LEN])
+}
+
+const fn create_walls<const LEN: usize>() -> u16 {
+    let mut row = [Tile::Empty; LEN];
+    row[0] = Tile::Filled;
+    row[LEN - 1] = Tile::Filled;
+    create_bitrow(row)
+}
+
+fn draw_bitrow<const LEN: usize>(mut row: u16) {
+    row = row.reverse_bits();
+    for _ in 0..LEN {
+        if (1u16 << (u16::BITS - 1)) & row == 0 {
+            print!(".");
+        } else {
+            print!("#");
+        }
+        row <<= 1;
+    }
+    println!();
+}
+
+#[derive(Clone)]
+struct Piece {
+    data: Vec<u16>,
+}
+
+impl Piece {
     fn horizontal_line() -> Self {
-        use Tile::*;
-        #[rustfmt::skip]
-        let shape = vec![
-            Filled, Filled, Filled, Filled,
-        ];
         Self {
-            tilemap: VecMatrix::with_data(shape, 4),
+            data: [create_line::<4>()].into(),
         }
     }
 
     fn vertical_line() -> Self {
-        use Tile::*;
-        #[rustfmt::skip]
-        let shape = vec![
-            Filled,
-            Filled,
-            Filled,
-            Filled,
-        ];
         Self {
-            tilemap: VecMatrix::with_data(shape, 1),
+            data: [create_line::<1>(); 4].into(),
         }
     }
 
     fn square() -> Self {
-        use Tile::*;
-        #[rustfmt::skip]
-        let shape = vec![
-            Filled, Filled,
-            Filled, Filled,
-        ];
         Self {
-            tilemap: VecMatrix::with_data(shape, 2),
+            data: [create_line::<2>(); 2].into(),
         }
     }
 
     fn plus_sign() -> Self {
         use Tile::*;
-        #[rustfmt::skip]
-        let shape = vec![
-            Empty,  Filled, Empty,
-            Filled, Filled, Filled,
-            Empty,  Filled, Empty,
-        ];
         Self {
-            tilemap: VecMatrix::with_data(shape, 3),
+            data: create_bitmap([
+                [Empty, Filled, Empty],
+                [Filled, Filled, Filled],
+                [Empty, Filled, Empty],
+            ])
+            .into(),
         }
     }
 
     fn angle() -> Self {
         use Tile::*;
-        #[rustfmt::skip]
-        let shape = vec![
-            Filled, Filled, Filled,
-            Empty,  Empty,  Filled,
-            Empty,  Empty,  Filled,
-        ];
         Self {
-            tilemap: VecMatrix::with_data(shape, 3),
+            data: create_bitmap([
+                [Filled, Filled, Filled],
+                [Filled, Empty, Empty],
+                [Filled, Empty, Empty],
+            ])
+            .into(),
         }
     }
 
@@ -92,79 +123,63 @@ impl Rock {
         ]
     }
 
-    fn new_chamber() -> Self {
+    fn height(&self) -> usize {
+        self.data.len()
+    }
+}
+
+#[derive(Clone)]
+struct Chamber {
+    tilemap: Vec<u16>,
+}
+
+impl Chamber {
+    fn new() -> Self {
         Self {
-            tilemap: VecMatrix::with_data(vec![Tile::Filled; 9], 9),
+            tilemap: [create_line::<9>()].into(),
         }
     }
 
     fn add_level(&mut self) {
-        self.tilemap.push(Tile::Filled);
-        self.tilemap.extend([Tile::Empty; 7]);
-        self.tilemap.push(Tile::Filled);
-    }
-
-    fn width(&self) -> usize {
-        self.tilemap.width()
+        self.tilemap.push(create_walls::<9>());
     }
 
     fn height(&self) -> usize {
-        self.tilemap.height()
+        self.tilemap.len()
     }
 
-    fn get_chamber_tile(&self, at: MatrixIndex) -> Tile {
-        if at.row < self.tilemap.height() {
-            self.tilemap[at]
-        } else if (1..=7).contains(&at.col) {
-            Tile::Empty
+    fn get_chamber_row(&self, row: usize) -> u16 {
+        if row < self.tilemap.len() {
+            self.tilemap[row]
         } else {
-            Tile::Filled
+            create_walls::<9>()
         }
     }
 
-    fn copy_tiles(&mut self, other: &Self, at: MatrixIndex) {
+    fn place(&mut self, piece: &Piece, at: MatrixIndex) {
         let MatrixIndex { row, col } = at;
 
-        let levels_to_add = usize::saturating_sub(row + other.height(), self.height());
+        let levels_to_add = usize::saturating_sub(row + piece.height(), self.height());
         for _ in 0..levels_to_add {
             self.add_level()
         }
 
-        for (idx, tile) in other.tilemap.iter_enumerate() {
-            if *tile != Tile::Empty {
-                let copy_idx = MatrixIndex {
-                    row: row + idx.row,
-                    col: col + idx.col,
-                };
-                if self.tilemap[copy_idx] != Tile::Empty {
-                    println!("Oh no! A rock wants to be placed where things collide");
-                    println!("Chamber:");
-                    self.draw();
-                    println!("Rock:");
-                    other.draw();
-                    println!("Location: {:?}", at);
-                }
-                self.tilemap[copy_idx] = *tile;
-            }
+        for (row_num, &row_data) in piece.data.iter().enumerate() {
+            self.tilemap[row + row_num] |= row_data << col;
         }
     }
 
-    fn check_collision(&self, other: &Self, at: MatrixIndex, rock_move: RockMove) -> bool {
-        let MatrixIndex { row, col } = at;
+    fn check_collision(&self, piece: &Piece, at: MatrixIndex, rock_move: RockMove) -> bool {
+        let MatrixIndex { mut row, mut col } = at;
 
-        let collision_idx = match rock_move {
-            RockMove::Down => MatrixIndex { row: row - 1, col },
-            RockMove::Left => MatrixIndex { row, col: col - 1 },
-            RockMove::Right => MatrixIndex { row, col: col + 1 },
+        match rock_move {
+            RockMove::Down => row -= 1,
+            RockMove::Left => col -= 1,
+            RockMove::Right => col += 1,
         };
 
-        for (idx, &tile) in other.tilemap.iter_enumerate() {
-            let chamber_idx = MatrixIndex {
-                row: collision_idx.row + idx.row,
-                col: collision_idx.col + idx.col,
-            };
-
-            if self.get_chamber_tile(chamber_idx) == Tile::Filled && tile == Tile::Filled {
+        for (row_num, &row_data) in piece.data.iter().enumerate() {
+            if self.get_chamber_row(row + row_num) & (row_data << col) != 0 {
                 return true;
             }
         }
@@ -174,17 +189,8 @@ impl Rock {
 
     #[allow(unused)]
     fn draw(&self) {
-        for (idx, tile) in self.tilemap.iter_enumerate() {
-            print!(
-                "{}",
-                match tile {
-                    Tile::Empty => '.',
-                    Tile::Filled => '#',
-                }
-            );
-            if idx.col == self.tilemap.width() - 1 {
-                println!();
-            }
+        for &(mut row_data) in self.tilemap.iter() {
+            draw_bitrow::<9>(row_data);
         }
         println!();
     }
@@ -206,9 +212,9 @@ pub fn tetris_simulator(
         })
         .cycle();
 
-    let mut chamber = Rock::new_chamber();
+    let mut chamber = Chamber::new();
 
-    for shape in Rock::all_shapes().into_iter().cycle().take(2022) {
+    for shape in Piece::all_shapes().into_iter().cycle().take(2022) {
         let mut rock_position = MatrixIndex {
             row: chamber.height() + 3,
             col: 3,
@@ -224,7 +230,7 @@ pub fn tetris_simulator(
             }
 
             if chamber.check_collision(&shape, rock_position, RockMove::Down) {
-                chamber.copy_tiles(&shape, rock_position);
+                chamber.place(&shape, rock_position);
                 break;
             } else {
                 rock_position.row -= 1;
