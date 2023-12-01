@@ -2,5 +2,6 @@
 members = [
     "aoc-common",
     "aoc-2022",
+    "aoc-2023",
 ]
 resolver = "2"

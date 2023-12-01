@@ -91,6 +91,11 @@ impl<T> VecMatrix<T> {
         }
     }
 
+    pub fn finish_row_with(&mut self, func: impl Fn() -> T) {
+        let last_row_len = self.len() % self.width();
+        self.extend((last_row_len..self.width()).map(|_| func()))
+    }
+
     pub fn iter_enumerate(&self) -> impl Iterator<Item = (MatrixIndex, &T)> {
         self.iter()
             .enumerate()
