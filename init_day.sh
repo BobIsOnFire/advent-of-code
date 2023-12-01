@@ -9,11 +9,17 @@ if ! test $num; then
     exit 1
 fi
 
-# Library code
-mkdir -p src/day${num}
+year=$2; test $year || year=2023
 
+cd aoc-${year}
+# Prepare directories
+mkdir -p src/day${num}/
+mkdir -p bin/
+mkdir -p inputs/
+
+# Library code
 cat <<EOF >src/day${num}/mod.rs
-use crate::util;
+use aoc_common::util;
 
 pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
     Ok((0, 0))
@@ -28,8 +34,8 @@ touch inputs/day${num}.txt
 
 # Executable
 cat <<EOF >bin/day${num}.rs
-use aoc2022::day${num};
-use aoc2022::Solution;
+use aoc_${year}::day${num};
+use aoc_common::Solution;
 
 fn main() {
     Solution::new("Day ${num}: DISPLAY NAME")
