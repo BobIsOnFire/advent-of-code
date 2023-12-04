@@ -22,10 +22,7 @@ where
     F: Fn(&mut dyn Iterator<Item = String>) -> util::GenericResult<(T1, T2)>,
 {
     pub fn new(title: impl Into<String>) -> Self {
-        Self {
-            title: title.into(),
-            processor: None,
-        }
+        Self { title: title.into(), processor: None }
     }
 
     pub fn solution(mut self, func: F) -> Self {

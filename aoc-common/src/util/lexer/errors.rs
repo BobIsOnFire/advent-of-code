@@ -49,10 +49,7 @@ impl Error {
     pub fn symbol(lexer: &Lexer<'_>, expected: Lexeme) -> Self {
         Self {
             str: lexer.s.to_owned(),
-            kind: ErrorKind::UnexpectedSymbol {
-                expected,
-                at: lexer.pos,
-            },
+            kind: ErrorKind::UnexpectedSymbol { expected, at: lexer.pos },
         }
     }
 

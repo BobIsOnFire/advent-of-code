@@ -40,18 +40,12 @@ where
                 break self.initial_iter.next()?;
             }
 
-            let last_iter = self
-                .iters
-                .last_mut()
-                .expect("Already checked that self.iters is not empty");
+            let last_iter = self.iters.last_mut().expect("Already checked that self.iters is not empty");
             match last_iter.next() {
                 Some(file) => break file,
                 None => {
                     // Directory is exhausted, return to parent
-                    let _ = self
-                        .iters
-                        .pop()
-                        .expect("Already checked that self.iters is not empty");
+                    let _ = self.iters.pop().expect("Already checked that self.iters is not empty");
                 }
             }
         };

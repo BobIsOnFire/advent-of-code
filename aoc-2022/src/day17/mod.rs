@@ -72,44 +72,28 @@ struct Piece {
 
 impl Piece {
     fn horizontal_line() -> Self {
-        Self {
-            data: [create_line::<4>()].into(),
-        }
+        Self { data: [create_line::<4>()].into() }
     }
 
     fn vertical_line() -> Self {
-        Self {
-            data: [create_line::<1>(); 4].into(),
-        }
+        Self { data: [create_line::<1>(); 4].into() }
     }
 
     fn square() -> Self {
-        Self {
-            data: [create_line::<2>(); 2].into(),
-        }
+        Self { data: [create_line::<2>(); 2].into() }
     }
 
     fn plus_sign() -> Self {
         use Tile::*;
         Self {
-            data: create_bitmap([
-                [Empty, Filled, Empty],
-                [Filled, Filled, Filled],
-                [Empty, Filled, Empty],
-            ])
-            .into(),
+            data: create_bitmap([[Empty, Filled, Empty], [Filled, Filled, Filled], [Empty, Filled, Empty]]).into(),
         }
     }
 
     fn angle() -> Self {
         use Tile::*;
         Self {
-            data: create_bitmap([
-                [Filled, Filled, Filled],
-                [Filled, Empty, Empty],
-                [Filled, Empty, Empty],
-            ])
-            .into(),
+            data: create_bitmap([[Filled, Filled, Filled], [Filled, Empty, Empty], [Filled, Empty, Empty]]).into(),
         }
     }
 
@@ -135,9 +119,7 @@ struct Chamber {
 
 impl Chamber {
     fn new() -> Self {
-        Self {
-            tilemap: [create_line::<9>()].into(),
-        }
+        Self { tilemap: [create_line::<9>()].into() }
     }
 
     fn add_level(&mut self) {
@@ -196,12 +178,8 @@ impl Chamber {
     }
 }
 
-pub fn tetris_simulator(
-    mut lines: impl Iterator<Item = String>,
-) -> util::GenericResult<(usize, usize)> {
-    let line = lines
-        .next()
-        .expect("A line with move data should be provided");
+pub fn tetris_simulator(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+    let line = lines.next().expect("A line with move data should be provided");
 
     let mut side_moves = line
         .chars()
@@ -215,10 +193,7 @@ pub fn tetris_simulator(
     let mut chamber = Chamber::new();
 
     for shape in Piece::all_shapes().into_iter().cycle().take(2022) {
-        let mut rock_position = MatrixIndex {
-            row: chamber.height() + 3,
-            col: 3,
-        };
+        let mut rock_position = MatrixIndex { row: chamber.height() + 3, col: 3 };
         loop {
             let side_move = side_moves.next().unwrap();
             if !chamber.check_collision(&shape, rock_position, side_move) {

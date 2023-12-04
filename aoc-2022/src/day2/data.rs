@@ -82,10 +82,7 @@ impl TryFrom<char> for OpponentTurn {
             'A' => Ok(Self::new(Shape::Rock)),
             'B' => Ok(Self::new(Shape::Paper)),
             'C' => Ok(Self::new(Shape::Scissors)),
-            ch => Err(Self::Error {
-                ch,
-                parse_type: ParseType::Shape,
-            }),
+            ch => Err(Self::Error { ch, parse_type: ParseType::Shape }),
         }
     }
 }
@@ -116,10 +113,7 @@ impl TryFrom<char> for UserTurn {
             'X' => Ok(Self::new(Shape::Rock)),
             'Y' => Ok(Self::new(Shape::Paper)),
             'Z' => Ok(Self::new(Shape::Scissors)),
-            ch => Err(Self::Error {
-                ch,
-                parse_type: ParseType::Shape,
-            }),
+            ch => Err(Self::Error { ch, parse_type: ParseType::Shape }),
         }
     }
 }
@@ -151,10 +145,7 @@ impl TryFrom<char> for Outcome {
             'X' => Ok(Self::Lose),
             'Y' => Ok(Self::Draw),
             'Z' => Ok(Self::Win),
-            ch => Err(Self::Error {
-                ch,
-                parse_type: ParseType::Outcome,
-            }),
+            ch => Err(Self::Error { ch, parse_type: ParseType::Outcome }),
         }
     }
 }

@@ -24,11 +24,7 @@ impl CubeSet {
 pub fn play_cube_game(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
     let mut id_sum = 0;
     let mut power = 0;
-    let basket = CubeSet {
-        red: 12,
-        green: 13,
-        blue: 14,
-    };
+    let basket = CubeSet { red: 12, green: 13, blue: 14 };
 
     for line in lines {
         let mut lexer = util::Lexer::of(&line);

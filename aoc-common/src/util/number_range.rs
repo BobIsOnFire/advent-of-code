@@ -35,9 +35,7 @@ impl NumberRange {
             (Self::Empty, Self::Empty) => Ordering::Equal,
             (Self::Empty, _) => Ordering::Less,
             (_, Self::Empty) => Ordering::Greater,
-            (Self::NonEmpty(my_from, _), Self::NonEmpty(other_from, _)) => {
-                i64::cmp(my_from, other_from)
-            }
+            (Self::NonEmpty(my_from, _), Self::NonEmpty(other_from, _)) => i64::cmp(my_from, other_from),
         }
     }
 }

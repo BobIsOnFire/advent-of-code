@@ -37,16 +37,10 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
     for (row, line) in lines.enumerate() {
         let mut lexer = util::Lexer::of(&line);
         while lexer.end().is_err() {
-            let char_coord = Coord {
-                row,
-                col: lexer.position(),
-            };
+            let char_coord = Coord { row, col: lexer.position() };
 
             if let Ok(num) = lexer.unsigned_number() {
-                let end_coord = Coord {
-                    row,
-                    col: lexer.position() - 1,
-                };
+                let end_coord = Coord { row, col: lexer.position() - 1 };
 
                 numbers.push(Number {
                     value: num,

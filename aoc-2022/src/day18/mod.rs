@@ -38,23 +38,13 @@ impl Block {
             _ => None,
         };
 
-        orient.map(|orientation| Surface {
-            block: *self,
-            orientation,
-        })
+        orient.map(|orientation| Surface { block: *self, orientation })
     }
 }
 
 impl Orientation {
     fn all() -> [Self; 6] {
-        [
-            Self::X_UP,
-            Self::X_DOWN,
-            Self::Y_UP,
-            Self::Y_DOWN,
-            Self::Z_UP,
-            Self::Z_DOWN,
-        ]
+        [Self::X_UP, Self::X_DOWN, Self::Y_UP, Self::Y_DOWN, Self::Z_UP, Self::Z_DOWN]
     }
 
     fn inverse(&self) -> Self {
@@ -122,9 +112,7 @@ impl Surface {
     }
 }
 
-pub fn find_surface_area(
-    lines: impl Iterator<Item = String>,
-) -> util::GenericResult<(usize, usize)> {
+pub fn find_surface_area(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
     let mut blocks = HashSet::new();
     let mut surfaces = HashSet::new();
     for line in lines {
@@ -163,11 +151,7 @@ pub fn find_surface_area(
     while let Some(surface) = visit_stack.pop() {
         let alter = surface.get_alternative();
         let top = alter.block;
-        for (side, top_side) in surface
-            .get_side_blocks()
-            .into_iter()
-            .zip(alter.get_side_blocks())
-        {
+        for (side, top_side) in surface.get_side_blocks().into_iter().zip(alter.get_side_blocks()) {
             let connected_surface = match (blocks.contains(&top_side), blocks.contains(&side)) {
                 (true, _) => top_side.get_common_surface(&top),
                 (false, true) => side.get_common_surface(&top_side),

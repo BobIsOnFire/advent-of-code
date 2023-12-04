@@ -44,8 +44,7 @@ struct Sensor {
 
 impl Sensor {
     fn beacon_distance(&self) -> u64 {
-        i64::abs_diff(self.sensor_coords.col, self.beacon_coords.col)
-            + i64::abs_diff(self.sensor_coords.row, self.beacon_coords.row)
+        i64::abs_diff(self.sensor_coords.col, self.beacon_coords.col) + i64::abs_diff(self.sensor_coords.row, self.beacon_coords.row)
     }
 
     fn row_distance(&self, row: i64) -> u64 {
@@ -61,10 +60,7 @@ impl Sensor {
 
     fn get_covered_cells(&self, row: i64) -> NumberRange {
         let delta = self.beacon_distance() as i64 - self.row_distance(row) as i64;
-        NumberRange::new(
-            self.sensor_coords.col - delta,
-            self.sensor_coords.col + delta,
-        )
+        NumberRange::new(self.sensor_coords.col - delta, self.sensor_coords.col + delta)
     }
 }
 
@@ -82,14 +78,8 @@ fn parse_sensor_data(line: String) -> util::lexer::Result<Sensor> {
     lexer.end()?;
 
     Ok(Sensor {
-        sensor_coords: Coord {
-            col: sensor_col,
-            row: sensor_row,
-        },
-        beacon_coords: Coord {
-            col: beacon_col,
-            row: beacon_row,
-        },
+        sensor_coords: Coord { col: sensor_col, row: sensor_row },
+        beacon_coords: Coord { col: beacon_col, row: beacon_row },
     })
 }
 
@@ -142,19 +132,12 @@ fn draw_sensor_map<const N: usize>(sensors: &[Sensor]) {
     }
 }
 
-pub fn find_missing_beacon(
-    lines: impl Iterator<Item = String>,
-) -> util::GenericResult<(usize, i64)> {
-    let sensors = lines
-        .map(parse_sensor_data)
-        .collect::<Result<Vec<_>, _>>()?;
+pub fn find_missing_beacon(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, i64)> {
+    let sensors = lines.map(parse_sensor_data).collect::<Result<Vec<_>, _>>()?;
 
     // draw_sensor_map::<20>(&sensors);
 
-    let mut ranges: Vec<_> = sensors
-        .iter()
-        .map(|sensor| sensor.get_covered_cells(ROW_TO_CHECK))
-        .collect();
+    let mut ranges: Vec<_> = sensors.iter().map(|sensor| sensor.get_covered_cells(ROW_TO_CHECK)).collect();
 
     sort_and_merge(&mut ranges);
 

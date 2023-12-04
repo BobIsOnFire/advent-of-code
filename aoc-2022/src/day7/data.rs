@@ -157,15 +157,11 @@ impl FileSystem {
     }
 
     fn get_file(&self, inode: Inode) -> &File {
-        self.inodes
-            .get(inode)
-            .expect("inode should exist in file system")
+        self.inodes.get(inode).expect("inode should exist in file system")
     }
 
     fn get_file_mut(&mut self, inode: Inode) -> &mut File {
-        self.inodes
-            .get_mut(inode)
-            .expect("inode should exist in file system")
+        self.inodes.get_mut(inode).expect("inode should exist in file system")
     }
 
     fn cwd(&self) -> &Directory {
@@ -193,10 +189,7 @@ impl FileSystem {
         match self.get_file(inode) {
             File::PlainFile(file) => file.size,
             File::Directory(dir) => {
-                let size = dir
-                    .list_directory()
-                    .map(|ch| self.do_disk_usage_recursive(ch))
-                    .sum();
+                let size = dir.list_directory().map(|ch| self.do_disk_usage_recursive(ch)).sum();
                 dir.set_last_disk_usage(size);
                 size
             }

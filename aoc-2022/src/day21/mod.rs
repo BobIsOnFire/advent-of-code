@@ -75,12 +75,7 @@ impl Job {
     fn check_depends(&self, check_id: Id, mut id_to_dep: impl FnMut(Id, Id) -> bool) -> bool {
         match self {
             Self::Number(_) => false,
-            Self::Operation { id1, id2, op: _ } => {
-                *id1 == check_id
-                    || *id2 == check_id
-                    || id_to_dep(*id1, check_id)
-                    || id_to_dep(*id2, check_id)
-            }
+            Self::Operation { id1, id2, op: _ } => *id1 == check_id || *id2 == check_id || id_to_dep(*id1, check_id) || id_to_dep(*id2, check_id),
         }
     }
 }
@@ -123,16 +118,11 @@ impl MonkeySet {
     }
 
     fn get_job_by_id(&self, id: Id) -> &Job {
-        self.jobs[id]
-            .as_ref()
-            .expect("All monkeys should have a job defined!")
+        self.jobs[id].as_ref().expect("All monkeys should have a job defined!")
     }
 
     fn get_monkey_id(&self, name: &str) -> Id {
-        *self
-            .name_to_id
-            .get(name)
-            .unwrap_or_else(|| panic!("{} not found", name))
+        *self.name_to_id.get(name).unwrap_or_else(|| panic!("{} not found", name))
     }
 
     fn get_result_by_id(&self, id: Id) -> i64 {
@@ -140,9 +130,7 @@ impl MonkeySet {
         if let Some(num) = cached_result {
             num
         } else {
-            let num = self
-                .get_job_by_id(id)
-                .get_result_by(|id| self.get_result_by_id(id));
+            let num = self.get_job_by_id(id).get_result_by(|id| self.get_result_by_id(id));
             self.operation_cache.borrow_mut().insert(id, num);
             num
         }
@@ -158,9 +146,7 @@ impl MonkeySet {
             } else {
                 let depends = self
                     .get_job_by_id(id)
-                    .check_depends(check_id, |id, check_id| {
-                        self.check_depends_by_id(id, check_id)
-                    });
+                    .check_depends(check_id, |id, check_id| self.check_depends_by_id(id, check_id));
                 self.depends_cache.borrow_mut().insert(id, depends);
                 depends
             }
@@ -172,7 +158,10 @@ impl MonkeySet {
             result
         } else {
             if !self.check_depends_by_id(id, operand_id) {
-                panic!("Current id ({}) doesn't depend on operand that we are searching ({})! Are we lost?", id, operand_id);
+                panic!(
+                    "Current id ({}) doesn't depend on operand that we are searching ({})! Are we lost?",
+                    id, operand_id
+                );
             }
 
             let job = self.get_job_by_id(id);
@@ -186,9 +175,7 @@ impl MonkeySet {
                     self.get_operand_by_id(*id2, operand_id, result)
                 }
             } else {
-                unreachable!(
-                    "Job::Number always returns `false` for check_depends, which I already checked"
-                )
+                unreachable!("Job::Number always returns `false` for check_depends, which I already checked")
             }
         }
     }

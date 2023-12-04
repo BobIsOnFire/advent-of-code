@@ -28,9 +28,7 @@ impl BitAnd for BitSet {
     type Output = BitSet;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        Self {
-            mask: self.mask & rhs.mask,
-        }
+        Self { mask: self.mask & rhs.mask }
     }
 }
 

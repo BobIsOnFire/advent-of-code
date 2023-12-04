@@ -7,12 +7,7 @@ fn parse_match_line(s: &str) -> lexer::Result<(char, char)> {
     let mut lexer = Lexer::of(s);
     let mut res = ('?', '?');
 
-    lexer
-        .chain()
-        .symbol(&mut res.0)?
-        .literal(" ")?
-        .symbol(&mut res.1)?
-        .end()?;
+    lexer.chain().symbol(&mut res.0)?.literal(" ")?.symbol(&mut res.1)?.end()?;
 
     Ok(res)
 }
@@ -32,8 +27,7 @@ pub fn get_total_scores(iter: impl Iterator<Item = String>) -> util::GenericResu
         let two_turns_match = Match::from_turns(first.try_into()?, second.try_into()?);
         answers.two_turns += two_turns_match.score();
 
-        let turn_and_outcome_match =
-            Match::from_opponent_and_outcome(first.try_into()?, second.try_into()?);
+        let turn_and_outcome_match = Match::from_opponent_and_outcome(first.try_into()?, second.try_into()?);
         answers.outcome += turn_and_outcome_match.score();
     }
 

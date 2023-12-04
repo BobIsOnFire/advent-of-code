@@ -1,9 +1,7 @@
 use aoc_common::util;
 
 fn parse_digit_as_text(lexer: &mut util::Lexer) -> Option<u8> {
-    let literals = [
-        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-    ];
+    let literals = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
 
     for (idx, literal) in literals.into_iter().enumerate() {
         if lexer.literal(literal).is_ok() {
@@ -53,8 +51,7 @@ pub fn calibrate(lines: impl Iterator<Item = String>) -> util::GenericResult<(us
         let last = last.unwrap_or(first);
         calibration += (first * 10 + last) as usize;
 
-        let first_with_text = first_with_text
-            .unwrap_or_else(|| panic!("{}: at least one digit or digit string is expected", line));
+        let first_with_text = first_with_text.unwrap_or_else(|| panic!("{}: at least one digit or digit string is expected", line));
         let last_with_text = last_with_text.unwrap_or(first_with_text);
         calibration_with_text += (first_with_text * 10 + last_with_text) as usize;
     }

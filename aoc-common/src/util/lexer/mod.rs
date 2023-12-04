@@ -12,10 +12,7 @@ pub struct Lexer<'a> {
 #[allow(dead_code)]
 impl<'a> Lexer<'a> {
     pub fn of(s: &'a str) -> Self {
-        assert!(
-            s.is_ascii(),
-            "This lexer only works with ASCII strings, sorry"
-        );
+        assert!(s.is_ascii(), "This lexer only works with ASCII strings, sorry");
         Self { s, pos: 0 }
     }
 
@@ -44,11 +41,7 @@ impl<'a> Lexer<'a> {
             return Err(Error::eol(self, Lexeme::Symbol));
         }
 
-        let ret =
-            self.slice()
-                .bytes()
-                .next()
-                .expect("??? There was at least one byte, I checked, I swear") as char;
+        let ret = self.slice().bytes().next().expect("??? There was at least one byte, I checked, I swear") as char;
 
         self.shift(1);
         Ok(ret)
@@ -126,9 +119,7 @@ impl<'a> Lexer<'a> {
     pub fn unsigned_number<Num: FromStr<Err = ParseIntError>>(&mut self) -> Result<Num> {
         let pos = self.digit_string()?;
 
-        let ret = self.slice()[..pos]
-            .parse()
-            .map_err(|e| Error::parse_error(self, e))?;
+        let ret = self.slice()[..pos].parse().map_err(|e| Error::parse_error(self, e))?;
 
         self.shift(pos);
         Ok(ret)
@@ -142,9 +133,7 @@ impl<'a> Lexer<'a> {
             offset + offsetted.digit_string()?
         };
 
-        let ret = self.slice()[..pos]
-            .parse()
-            .map_err(|e| Error::parse_error(self, e))?;
+        let ret = self.slice()[..pos].parse().map_err(|e| Error::parse_error(self, e))?;
 
         self.shift(pos);
         Ok(ret)

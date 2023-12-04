@@ -21,10 +21,7 @@ impl Tree {
     }
 
     fn is_visible(&self) -> bool {
-        self.height > self.highest_top
-            || self.height > self.highest_bottom
-            || self.height > self.highest_left
-            || self.height > self.highest_right
+        self.height > self.highest_top || self.height > self.highest_bottom || self.height > self.highest_left || self.height > self.highest_right
     }
 
     fn set_on_top(&mut self, other: Tree) {
@@ -44,12 +41,8 @@ impl Tree {
     }
 }
 
-pub fn find_visible_trees(
-    lines: impl Iterator<Item = String>,
-) -> util::GenericResult<(usize, usize)> {
-    let mut trees: Vec<Vec<Tree>> = lines
-        .map(|line| line.bytes().map(|b| Tree::new((b - b'0') as i8)).collect())
-        .collect();
+pub fn find_visible_trees(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+    let mut trees: Vec<Vec<Tree>> = lines.map(|line| line.bytes().map(|b| Tree::new((b - b'0') as i8)).collect()).collect();
 
     let (width, height) = (trees[0].len(), trees.len());
     for row in 1..height {
@@ -69,10 +62,7 @@ pub fn find_visible_trees(
         }
     }
 
-    let visible = trees
-        .iter()
-        .map(|row| row.iter().filter(|tree| tree.is_visible()).count())
-        .sum();
+    let visible = trees.iter().map(|row| row.iter().filter(|tree| tree.is_visible()).count()).sum();
 
     Ok((visible, 0))
 }
