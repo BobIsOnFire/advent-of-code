@@ -1,76 +1,62 @@
-use aoc_common::util::{self, MatrixIndex, VecMatrix};
+mod cube;
+mod data;
 
-type Coord = MatrixIndex;
+use aoc_common::util::{self, VecMatrix};
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Tile {
-    Empty,
-    Wall,
-}
+use self::{
+    cube::cube_mapping,
+    data::{BoundsMapping, Coord, Direction, Tile, TileMap},
+};
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Direction {
-    Right,
-    Down,
-    Left,
-    Up,
-}
+fn flat_mapping(tilemap: &TileMap) -> BoundsMapping {
+    let mut bounds = BoundsMapping {
+        right_side: vec![],
+        left_side: vec![],
+        down_side: vec![],
+        up_side: vec![],
+    };
 
-struct BoardBounds {
-    first_left: Vec<Coord>,
-    last_right: Vec<Coord>,
-    first_up: Vec<Coord>,
-    last_down: Vec<Coord>,
+    for row in 0..tilemap.height() {
+        let mut tile_coords_iter = (0..tilemap.width())
+            .map(|col| Coord { row, col })
+            .filter(|coord| tilemap[*coord].is_some());
+
+        let first = tile_coords_iter.next().unwrap_or(Coord { row, col: 0 });
+        let last = tile_coords_iter.last().unwrap_or(first);
+
+        bounds.right_side.push((first, Direction::Right));
+        bounds.left_side.push((last, Direction::Left));
+    }
+
+    for col in 0..tilemap.width() {
+        let mut tile_coords_iter = (0..tilemap.height())
+            .map(|row| Coord { row, col })
+            .filter(|coord| tilemap[*coord].is_some());
+
+        let first = tile_coords_iter.next().unwrap_or(Coord { row: 0, col });
+        let last = tile_coords_iter.last().unwrap_or(first);
+
+        bounds.down_side.push((first, Direction::Down));
+        bounds.up_side.push((last, Direction::Up));
+    }
+
+    bounds
 }
 
 struct Board {
     tilemap: VecMatrix<Option<Tile>>,
-    bounds: BoardBounds,
+    bounds: BoundsMapping,
     coord: Coord,
     direction: Direction,
 }
 
-impl BoardBounds {
-    fn from_tilemap(tilemap: &VecMatrix<Option<Tile>>) -> Self {
-        let mut bounds = Self {
-            first_left: vec![],
-            last_right: vec![],
-            first_up: vec![],
-            last_down: vec![],
-        };
-
-        for row in 0..tilemap.height() {
-            let mut tile_coords_iter = (0..tilemap.width())
-                .map(|col| Coord { row, col })
-                .filter(|coord| tilemap[*coord].is_some());
-
-            let first = tile_coords_iter.next().unwrap_or(Coord { row, col: 0 });
-            let last = tile_coords_iter.last().unwrap_or(first);
-
-            bounds.first_left.push(first);
-            bounds.last_right.push(last);
-        }
-
-        for col in 0..tilemap.width() {
-            let mut tile_coords_iter = (0..tilemap.height())
-                .map(|row| Coord { row, col })
-                .filter(|coord| tilemap[*coord].is_some());
-
-            let first = tile_coords_iter.next().unwrap_or(Coord { row: 0, col });
-            let last = tile_coords_iter.last().unwrap_or(first);
-
-            bounds.first_up.push(first);
-            bounds.last_down.push(last);
-        }
-
-        bounds
-    }
-}
-
 impl Board {
-    fn from_tilemap(tilemap: VecMatrix<Option<Tile>>) -> Self {
-        let bounds = BoardBounds::from_tilemap(&tilemap);
-        let coord = bounds.first_left[1];
+    fn new(tilemap: VecMatrix<Option<Tile>>, bounds: BoundsMapping) -> Self {
+        let mut coord = Coord { row: 1, col: 1 };
+        while tilemap[coord].is_none() {
+            coord.col += 1;
+        }
+
         Self {
             tilemap,
             bounds,
@@ -90,18 +76,22 @@ impl Board {
                     Direction::Up => Coord { row: row - 1, col },
                 }
             };
+            let mut next_direction = self.direction;
 
             if self.tilemap[next_coord].is_none() {
-                next_coord = match self.direction {
-                    Direction::Right => self.bounds.first_left[next_coord.row],
-                    Direction::Down => self.bounds.first_up[next_coord.col],
-                    Direction::Left => self.bounds.last_right[next_coord.row],
-                    Direction::Up => self.bounds.last_down[next_coord.col],
+                (next_coord, next_direction) = match self.direction {
+                    Direction::Right => self.bounds.right_side[next_coord.row],
+                    Direction::Down => self.bounds.down_side[next_coord.col],
+                    Direction::Left => self.bounds.left_side[next_coord.row],
+                    Direction::Up => self.bounds.up_side[next_coord.col],
                 };
             }
 
             match self.tilemap[next_coord].expect("Bounds should be filled correctly") {
-                Tile::Empty => self.coord = next_coord,
+                Tile::Empty => {
+                    self.coord = next_coord;
+                    self.direction = next_direction;
+                }
                 Tile::Wall => return,
             }
         }
@@ -156,23 +146,29 @@ pub fn get_answer(mut lines: impl Iterator<Item = String>) -> util::GenericResul
     // Last row
     tilemap.extend((0..200).map(|_| None));
 
-    let mut board = Board::from_tilemap(tilemap);
-
     let move_data = lines.next().expect("Move data should exist");
-    let mut lexer = util::Lexer::of(&move_data);
-    while lexer.end().is_err() {
-        if let Ok(count) = lexer.unsigned_number() {
-            board.move_next(count)
-        } else {
-            match lexer.symbol()? {
-                'R' => board.turn_clockwise(),
-                'L' => board.turn_counter_clockwise(),
-                ch => panic!("Unknown turn symbol: {}", ch),
+
+    let mappings = [flat_mapping(&tilemap), cube_mapping(&tilemap)];
+    let mut passwords = [0, 0];
+
+    for (mapping, password) in mappings.into_iter().zip(passwords.iter_mut()) {
+        let mut board = Board::new(tilemap.clone(), mapping);
+
+        let mut lexer = util::Lexer::of(&move_data);
+        while lexer.end().is_err() {
+            if let Ok(count) = lexer.unsigned_number() {
+                board.move_next(count)
+            } else {
+                match lexer.symbol()? {
+                    'R' => board.turn_clockwise(),
+                    'L' => board.turn_counter_clockwise(),
+                    ch => panic!("Unknown turn symbol: {}", ch),
+                }
             }
         }
+
+        *password = board.coord.row * 1000 + board.coord.col * 4 + board.direction as usize;
     }
 
-    let password = board.coord.row * 1000 + board.coord.col * 4 + board.direction as usize;
-
-    Ok((password, 0))
+    Ok((passwords[0], passwords[1]))
 }

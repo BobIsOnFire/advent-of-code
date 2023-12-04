@@ -1,10 +1,12 @@
 mod end_on_err;
 mod groups;
 mod recursive;
+mod windows_cycle;
 
 pub use end_on_err::EndOnErr;
 pub use groups::Groups;
 pub use recursive::Recursive;
+pub use windows_cycle::WindowsCycle;
 
 pub trait IteratorExtended: Iterator + Sized {
     fn groups<const N: usize>(self) -> Groups<Self, N> {
@@ -29,3 +31,13 @@ pub trait ResultIteratorExtended<R, E>: Iterator<Item = Result<R, E>> + Sized {
 }
 
 impl<R, E, T: Iterator<Item = Result<R, E>>> ResultIteratorExtended<R, E> for T {}
+
+pub trait ArrayIterators<T, const N: usize> {
+    fn windows_cycle(&self) -> WindowsCycle<T, N>;
+}
+
+impl<T, const N: usize> ArrayIterators<T, N> for [T; N] {
+    fn windows_cycle(&self) -> WindowsCycle<T, N> {
+        WindowsCycle::new(self)
+    }
+}

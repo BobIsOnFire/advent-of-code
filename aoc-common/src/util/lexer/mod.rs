@@ -23,6 +23,10 @@ impl<'a> Lexer<'a> {
         &self.s[self.pos..]
     }
 
+    pub fn position(&self) -> usize {
+        self.pos
+    }
+
     pub fn end(&self) -> Result<()> {
         if self.slice().is_empty() {
             Ok(())
@@ -51,7 +55,7 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn take(&mut self, len: usize) -> Result<&'a str> {
-        if self.slice().len() <= len {
+        if self.slice().len() < len {
             return Err(Error::eol(self, Lexeme::Symbols(len)));
         }
 
