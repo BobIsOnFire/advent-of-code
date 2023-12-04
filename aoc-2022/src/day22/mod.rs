@@ -124,7 +124,7 @@ fn tile_from_char(ch: char) -> Option<Tile> {
     }
 }
 
-pub fn get_answer(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn traverse_map(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
     let mut tilemap = VecMatrix::new(200);
 
     // First row
