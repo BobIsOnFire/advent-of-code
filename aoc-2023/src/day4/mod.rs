@@ -10,14 +10,14 @@ pub fn count_scratchcards(lines: impl Iterator<Item = String>) -> util::GenericR
     for line in lines {
         let mut lexer = util::Lexer::of(&line);
         lexer.literal("Card")?;
-        lexer.take_while(|ch| ch.is_ascii_whitespace())?;
+        lexer.whitespace()?;
 
         let id: usize = lexer.unsigned_number()?;
         lexer.literal(":")?;
 
         let mut winning_set: HashSet<u32> = HashSet::new();
         loop {
-            lexer.take_while(|ch| ch.is_ascii_whitespace())?;
+            lexer.whitespace()?;
             if lexer.literal("|").is_ok() {
                 break;
             }
@@ -26,7 +26,7 @@ pub fn count_scratchcards(lines: impl Iterator<Item = String>) -> util::GenericR
 
         let mut card_set: HashSet<u32> = HashSet::new();
         loop {
-            lexer.take_while(|ch| ch.is_ascii_whitespace())?;
+            lexer.whitespace()?;
             if lexer.end().is_ok() {
                 break;
             }

@@ -83,7 +83,7 @@ pub fn count_unique_positions(lines: impl Iterator<Item = String>) -> util::Gene
         let mut lexer = Lexer::of(&line);
 
         let op = lexer.symbol()?;
-        lexer.literal(" ")?;
+        lexer.whitespace()?;
         let count = lexer.unsigned_number()?;
         lexer.end()?;
 

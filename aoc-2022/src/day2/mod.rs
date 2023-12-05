@@ -7,7 +7,7 @@ fn parse_match_line(s: &str) -> lexer::Result<(char, char)> {
     let mut lexer = Lexer::of(s);
     let mut res = ('?', '?');
 
-    lexer.chain().symbol(&mut res.0)?.literal(" ")?.symbol(&mut res.1)?.end()?;
+    lexer.chain().symbol(&mut res.0)?.whitespace()?.symbol(&mut res.1)?.end()?;
 
     Ok(res)
 }

@@ -86,6 +86,11 @@ impl<'a> Lexer<'a> {
         Ok(())
     }
 
+    pub fn whitespace(&mut self) -> Result<()> {
+        self.take_while(|ch| ch.is_ascii_whitespace())?;
+        Ok(())
+    }
+
     pub fn before_literal(&mut self, literal: &str) -> Result<&'a str> {
         let pos = self
             .slice()
@@ -178,6 +183,11 @@ impl<'a, 'c> LexerChain<'a, 'c> {
 
     pub fn literal(self, literal: &str) -> Result<Self> {
         self.lexer.literal(literal)?;
+        Ok(self)
+    }
+
+    pub fn whitespace(self) -> Result<Self> {
+        self.lexer.whitespace()?;
         Ok(self)
     }
 

@@ -22,7 +22,7 @@ pub fn parse_stack_level<const LEN: usize>(s: &str) -> lexer::Result<[Option<cha
         }
 
         if ind != LEN - 1 {
-            lexer.literal(" ")?;
+            lexer.whitespace()?;
         }
     }
 
@@ -38,7 +38,7 @@ pub fn parse_stack_separator<const LEN: usize>(s: &str) -> lexer::Result<()> {
         lexer.literal(&format!(" {} ", ind))?;
 
         if ind != LEN {
-            lexer.literal(" ")?;
+            lexer.whitespace()?;
         }
     }
     lexer.end()?;

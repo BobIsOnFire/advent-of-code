@@ -149,7 +149,7 @@ fn parse_worker_cost(lexer: &mut util::Lexer) -> util::GenericResult<(WorkerCost
     let mut worker_cost = WorkerCost::default();
     loop {
         let count = lexer.unsigned_number()?;
-        lexer.literal(" ")?;
+        lexer.whitespace()?;
         let res_type = parse_resource_type(lexer)?;
         *worker_cost.0.get_mut(res_type) = count;
 
@@ -176,7 +176,7 @@ fn parse_blueprint(data: &str) -> util::GenericResult<Blueprint> {
         if lexer.end().is_ok() {
             break;
         }
-        lexer.literal(" ")?;
+        lexer.whitespace()?;
     }
 
     Ok(blueprint)

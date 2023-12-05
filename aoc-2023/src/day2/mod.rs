@@ -40,7 +40,7 @@ pub fn play_cube_game(lines: impl Iterator<Item = String>) -> util::GenericResul
 
         loop {
             let quantity: usize = lexer.unsigned_number()?;
-            lexer.literal(" ")?;
+            lexer.whitespace()?;
             let color_str = lexer.take_while(|ch| ch.is_ascii_alphabetic())?;
             match color_str {
                 "red" => set.red = quantity,

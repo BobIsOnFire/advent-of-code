@@ -48,7 +48,7 @@ pub fn parse_file_entry(s: &str) -> lexer::Result<(String, File)> {
         File::plain(size)
     };
 
-    lexer.literal(" ")?;
+    lexer.whitespace()?;
     let name = lexer.take_rest()?;
 
     Ok((name.to_owned(), file))
