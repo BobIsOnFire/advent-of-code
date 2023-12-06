@@ -3,6 +3,9 @@ pub type GenericResult<T> = Result<T, Box<dyn std::error::Error>>;
 mod array_stack;
 pub use array_stack::ArrayStack;
 
+mod bisect;
+pub use bisect::{bisect, Bisect};
+
 mod bitset;
 pub use bitset::BitSet;
 
