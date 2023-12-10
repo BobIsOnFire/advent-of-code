@@ -12,6 +12,13 @@ pub struct VecMatrix<T> {
     width: usize,
 }
 
+fn get_matrix_idx(data_idx: usize, width: usize) -> MatrixIndex {
+    MatrixIndex {
+        row: data_idx / width,
+        col: data_idx % width,
+    }
+}
+
 impl<T> VecMatrix<T> {
     pub fn with_data(data: Vec<T>, width: usize) -> Self {
         Self { data, width }
@@ -95,7 +102,13 @@ impl<T> VecMatrix<T> {
     }
 
     pub fn iter_enumerate(&self) -> impl Iterator<Item = (MatrixIndex, &T)> {
-        self.iter().enumerate().map(|(idx, item)| (self.get_matrix_idx(idx), item))
+        let width = self.width;
+        self.iter().enumerate().map(move |(idx, item)| (get_matrix_idx(idx, width), item))
+    }
+
+    pub fn iter_enumerate_mut(&mut self) -> impl Iterator<Item = (MatrixIndex, &mut T)> {
+        let width = self.width;
+        self.iter_mut().enumerate().map(move |(idx, item)| (get_matrix_idx(idx, width), item))
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &T> {
@@ -111,13 +124,6 @@ impl<T> VecMatrix<T> {
             None
         } else {
             Some(idx.row * self.width + idx.col)
-        }
-    }
-
-    fn get_matrix_idx(&self, data_idx: usize) -> MatrixIndex {
-        MatrixIndex {
-            row: data_idx / self.width,
-            col: data_idx % self.width,
         }
     }
 }
