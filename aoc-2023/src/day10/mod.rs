@@ -69,10 +69,10 @@ impl Tile {
 fn next_idx(tilemap: &VecMatrix<Tile>, idx: MatrixIndex, direction: Direction) -> Option<MatrixIndex> {
     use Direction::*;
     match direction {
-        North => tilemap.up_idx(idx),
-        South => tilemap.down_idx(idx),
-        West => tilemap.left_idx(idx),
-        East => tilemap.right_idx(idx),
+        North => tilemap.next_up(idx),
+        South => tilemap.next_down(idx),
+        West => tilemap.next_left(idx),
+        East => tilemap.next_right(idx),
     }
 }
 
@@ -139,8 +139,8 @@ pub fn find_enclosing_loop(lines: impl Iterator<Item = String>) -> util::Generic
     let mut enclosed_ground = 0;
 
     for (idx, tile) in tilemap.iter_enumerate() {
-        let left = enclosed_map.left_idx(idx).map(|i| enclosed_map[i]).unwrap_or(Closure::Outside);
-        let top = enclosed_map.up_idx(idx).map(|i| enclosed_map[i]).unwrap_or(Closure::Outside);
+        let left = enclosed_map.next_left(idx).map(|i| enclosed_map[i]).unwrap_or(Closure::Outside);
+        let top = enclosed_map.next_up(idx).map(|i| enclosed_map[i]).unwrap_or(Closure::Outside);
         if tile.has_south_pipe() {
             enclosed_map[idx] = left.opposite();
         } else if tile.has_east_pipe() {

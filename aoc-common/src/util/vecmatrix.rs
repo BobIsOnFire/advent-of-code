@@ -60,7 +60,7 @@ impl<T> VecMatrix<T> {
         self.get_flat_idx(idx).and_then(|data_idx| self.data.get_mut(data_idx))
     }
 
-    pub fn left_idx(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
+    pub fn next_left(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if col == 0 {
             None
@@ -69,7 +69,7 @@ impl<T> VecMatrix<T> {
         }
     }
 
-    pub fn right_idx(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
+    pub fn next_right(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if col >= self.width() - 1 {
             None
@@ -78,7 +78,7 @@ impl<T> VecMatrix<T> {
         }
     }
 
-    pub fn up_idx(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
+    pub fn next_up(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if row == 0 {
             None
@@ -87,7 +87,7 @@ impl<T> VecMatrix<T> {
         }
     }
 
-    pub fn down_idx(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
+    pub fn next_down(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if row >= self.height() - 1 {
             None

@@ -43,7 +43,7 @@ fn walk_paths(mat: &mut VecMatrix<Tile>) -> util::GenericResult<()> {
 
     loop {
         for &idx in current.iter() {
-            let neighbours = [mat.up_idx(idx), mat.left_idx(idx), mat.down_idx(idx), mat.right_idx(idx)];
+            let neighbours = [mat.next_up(idx), mat.next_left(idx), mat.next_down(idx), mat.next_right(idx)];
 
             for neigh in neighbours.into_iter().flatten() {
                 if !mat[neigh].visited && mat[idx].can_cross(&mat[neigh]) {
