@@ -52,6 +52,10 @@ impl<T> VecMatrix<T> {
         self.data.len()
     }
 
+    pub fn data(&self) -> &[T] {
+        &self.data
+    }
+
     pub fn get(&self, idx: MatrixIndex) -> Option<&T> {
         self.get_flat_idx(idx).and_then(|data_idx| self.data.get(data_idx))
     }
