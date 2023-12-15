@@ -26,10 +26,7 @@ pub fn get_n_highest<const N: usize>(lines: impl Iterator<Item = String>) -> uti
         }
         elf_sums.push(sum);
     }
-
-    if let Some(err) = food_lines.into_error() {
-        return Err(err.into());
-    }
+    food_lines.into_err()?;
 
     let len = elf_sums.len();
     assert!(N < len, "N is too big");

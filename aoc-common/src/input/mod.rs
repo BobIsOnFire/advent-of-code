@@ -39,10 +39,7 @@ where
         let mut iter = reader.lines().end_on_error();
 
         let (ans1, ans2) = self.processor.ok_or("Processor is None")?(&mut iter)?;
-
-        if let Some(err) = iter.into_error() {
-            return Err(err.into());
-        }
+        iter.into_err()?;
 
         println!("--- Part 1 ---");
         println!();

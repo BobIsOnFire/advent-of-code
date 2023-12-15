@@ -4,8 +4,8 @@ pub struct EndOnErr<R, E, T: Iterator<Item = Result<R, E>>> {
 }
 
 impl<R, E, T: Iterator<Item = Result<R, E>>> EndOnErr<R, E, T> {
-    pub fn into_error(self) -> Option<E> {
-        self.error
+    pub fn into_err(self) -> Result<(), E> {
+        self.error.map_or(Ok(()), Err)
     }
 }
 
