@@ -9,7 +9,7 @@ if ! test $num; then
     exit 1
 fi
 
-year=$2; test $year || year=2023
+year=$2; test $year || year=2024
 
 cd aoc-${year}
 # Prepare directories
