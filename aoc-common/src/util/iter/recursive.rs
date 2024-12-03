@@ -17,7 +17,7 @@ where
     I: Iterator<Item = I1::Item>,
     F: Fn(&I1::Item) -> Option<I>,
 {
-    pub fn new(iter: I1, func: F) -> Self {
+    pub const fn new(iter: I1, func: F) -> Self {
         Self {
             initial_iter: iter,
             iters: vec![],
@@ -53,9 +53,7 @@ where
         let depth = self.iters.len();
 
         if let Some(it) = (self.func)(&next) {
-            if self.iters.len() == RECURSION_LIMIT {
-                panic!("Recursion limit reached");
-            }
+            assert!(self.iters.len() < RECURSION_LIMIT, "Recursion limit reached");
             self.iters.push(it);
         }
 

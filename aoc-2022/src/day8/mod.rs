@@ -10,7 +10,7 @@ struct Tree {
 }
 
 impl Tree {
-    fn new(height: i8) -> Self {
+    const fn new(height: i8) -> Self {
         Self {
             height,
             highest_top: -1,
@@ -20,24 +20,24 @@ impl Tree {
         }
     }
 
-    fn is_visible(&self) -> bool {
+    const fn is_visible(self) -> bool {
         self.height > self.highest_top || self.height > self.highest_bottom || self.height > self.highest_left || self.height > self.highest_right
     }
 
-    fn set_on_top(&mut self, other: Tree) {
-        self.highest_top = Ord::max(other.height, other.highest_top)
+    fn set_on_top(&mut self, other: Self) {
+        self.highest_top = Ord::max(other.height, other.highest_top);
     }
 
-    fn set_on_bottom(&mut self, other: Tree) {
-        self.highest_bottom = Ord::max(other.height, other.highest_bottom)
+    fn set_on_bottom(&mut self, other: Self) {
+        self.highest_bottom = Ord::max(other.height, other.highest_bottom);
     }
 
-    fn set_on_left(&mut self, other: Tree) {
-        self.highest_left = Ord::max(other.height, other.highest_left)
+    fn set_on_left(&mut self, other: Self) {
+        self.highest_left = Ord::max(other.height, other.highest_left);
     }
 
-    fn set_on_right(&mut self, other: Tree) {
-        self.highest_right = Ord::max(other.height, other.highest_right)
+    fn set_on_right(&mut self, other: Self) {
+        self.highest_right = Ord::max(other.height, other.highest_right);
     }
 }
 

@@ -15,17 +15,19 @@ impl BitSet {
         (0..u64::BITS.into()).filter(move |key| (1u64 << key) & mask != 0)
     }
 
-    pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
         self.mask == 0
     }
 
-    pub fn len(&self) -> usize {
+    #[must_use]
+    pub const fn len(&self) -> usize {
         self.mask.count_ones() as usize
     }
 }
 
 impl BitAnd for BitSet {
-    type Output = BitSet;
+    type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
         Self { mask: self.mask & rhs.mask }

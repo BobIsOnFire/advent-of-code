@@ -7,23 +7,23 @@ struct Range {
 }
 
 impl Range {
-    fn new(start: usize, len: usize) -> Self {
+    const fn new(start: usize, len: usize) -> Self {
         Self { start, len }
     }
 
-    fn from_bounds(start: usize, end: usize) -> Self {
+    const fn from_bounds(start: usize, end: usize) -> Self {
         Self { start, len: end - start + 1 }
     }
 
-    fn start(&self) -> usize {
+    const fn start(&self) -> usize {
         self.start
     }
 
-    fn len(&self) -> usize {
+    const fn len(&self) -> usize {
         self.len
     }
 
-    fn end(&self) -> usize {
+    const fn end(&self) -> usize {
         self.start + self.len - 1
     }
 
@@ -35,7 +35,7 @@ impl Range {
         self.contains(other.start()) || self.contains(other.end()) || other.contains(self.start()) || other.contains(self.end())
     }
 
-    fn is_followed_by(&self, other: &Self) -> bool {
+    const fn is_followed_by(&self, other: &Self) -> bool {
         other.start() == self.end() + 1
     }
 
@@ -59,7 +59,7 @@ impl Range {
         }
     }
 
-    fn get_difference(&self, other: &Self) -> (Option<Self>, Option<Self>) {
+    const fn get_difference(&self, other: &Self) -> (Option<Self>, Option<Self>) {
         let left = if self.start() < other.start() {
             Some(Self::from_bounds(self.start(), other.start() - 1))
         } else {
@@ -87,7 +87,7 @@ struct IntegerSet {
 }
 
 impl IntegerSet {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self { ranges: Vec::new() }
     }
 
@@ -129,8 +129,8 @@ impl IntegerSet {
     #[allow(dead_code)]
     fn print(&self, prefix: &str) {
         let mut ranges = self.ranges.clone();
-        ranges.sort_by_key(|r| r.start());
-        let strings = ranges.iter().map(|r| format!("{}", r)).collect::<Vec<_>>();
+        ranges.sort_by_key(Range::start);
+        let strings = ranges.iter().map(|r| format!("{r}")).collect::<Vec<_>>();
 
         println!("{}: [{}]", prefix, strings.join(", "));
     }
@@ -144,8 +144,8 @@ impl IntegerSet {
     }
 }
 
-fn parse_seeds(line: String) -> util::lexer::Result<(Vec<usize>, IntegerSet)> {
-    let mut lexer = util::Lexer::of(&line);
+fn parse_seeds(line: &str) -> util::lexer::Result<(Vec<usize>, IntegerSet)> {
+    let mut lexer = util::Lexer::of(line);
     lexer.literal("seeds:")?;
 
     let mut values = Vec::new();
@@ -153,19 +153,19 @@ fn parse_seeds(line: String) -> util::lexer::Result<(Vec<usize>, IntegerSet)> {
 
     while lexer.end().is_err() {
         lexer.whitespace()?;
-        let value1 = lexer.unsigned_number()?;
+        let val1 = lexer.unsigned_number()?;
         lexer.whitespace()?;
-        let value2 = lexer.unsigned_number()?;
+        let val2 = lexer.unsigned_number()?;
 
-        values.extend([value1, value2]);
-        ranges.insert(Range::new(value1, value2));
+        values.extend([val1, val2]);
+        ranges.insert(Range::new(val1, val2));
     }
 
     Ok((values, ranges))
 }
 
 pub fn find_locations(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
-    let (mut values, mut ranges) = parse_seeds(lines.next().expect("Seed line is expected"))?;
+    let (mut values, mut ranges) = parse_seeds(&lines.next().expect("Seed line is expected"))?;
 
     let _ = lines.next().expect("Input ended too soon");
 
@@ -235,7 +235,7 @@ pub fn find_locations(mut lines: impl Iterator<Item = String>) -> util::GenericR
     let min_location = values.into_iter().min().expect("There should be at least one location");
     let min_range = ranges
         .iter_ranges()
-        .map(|r| r.start())
+        .map(Range::start)
         .min()
         .expect("There should be at least one location");
 

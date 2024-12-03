@@ -3,7 +3,7 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self { cycle: 0 }
     }
 
@@ -11,7 +11,7 @@ impl Cpu {
         self.cycle += 1;
     }
 
-    pub fn get_cycle(&self) -> usize {
+    pub const fn get_cycle(&self) -> usize {
         self.cycle
     }
 }
@@ -27,7 +27,7 @@ pub struct Register {
 }
 
 impl Register {
-    pub fn new(value: i64) -> Self {
+    pub const fn new(value: i64) -> Self {
         Self { value }
     }
 
@@ -35,7 +35,7 @@ impl Register {
         self.value += value;
     }
 
-    pub fn get(&self) -> i64 {
+    pub const fn get(&self) -> i64 {
         self.value
     }
 }
@@ -113,7 +113,7 @@ impl VideoSystem {
         self.process_cycle();
     }
 
-    pub fn get_total_signal_strength(&self) -> i64 {
+    pub const fn get_total_signal_strength(&self) -> i64 {
         self.total_signal_strength
     }
 
@@ -134,20 +134,20 @@ impl VideoSystem {
         }
     }
 
-    fn is_strong_px(&self) -> bool {
+    const fn is_strong_px(&self) -> bool {
         self.cpu.get_cycle() % self.width == self.strong_px
     }
 
-    fn should_be_lit(&self) -> bool {
+    const fn should_be_lit(&self) -> bool {
         let (x, _) = self.get_screen_coords();
         i64::abs_diff(self.reg.get(), x as i64) <= 1
     }
 
-    fn get_signal_strength(&self) -> i64 {
+    const fn get_signal_strength(&self) -> i64 {
         (self.cpu.get_cycle() as i64) * self.reg.get()
     }
 
-    fn get_screen_coords(&self) -> (usize, usize) {
+    const fn get_screen_coords(&self) -> (usize, usize) {
         let through_lines = self.cpu.get_cycle() - 1;
         (through_lines % self.width, through_lines / self.width)
     }

@@ -11,7 +11,7 @@ fn parse_table_row(line: &str, prefix: &str) -> util::lexer::Result<Vec<u64>> {
     .collect()
 }
 
-fn get_distance(hold_time: u64, total_time: u64) -> u64 {
+const fn get_distance(hold_time: u64, total_time: u64) -> u64 {
     let speed = hold_time;
     let run_time = total_time - hold_time;
     speed * run_time

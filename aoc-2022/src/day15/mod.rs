@@ -1,6 +1,6 @@
 use aoc_common::util::{self, NumberRange};
 
-const ROW_TO_CHECK: i64 = 2000000;
+const ROW_TO_CHECK: i64 = 2_000_000;
 
 fn sort_and_merge(ranges: &mut Vec<NumberRange>) {
     ranges.sort_unstable_by(NumberRange::started_before);
@@ -17,7 +17,7 @@ fn sort_and_merge(ranges: &mut Vec<NumberRange>) {
             // Two closest ranges don't intersect
             if (*last | range).len() == last.len() + range.len() + 1 {
                 // They can still be one after another (e.g. [1,2] and [3,4]), we can merge them
-                *last = *last | range
+                *last = *last | range;
             } else {
                 // No common ground (e.g. [1,2] and [5,6]), create new range
                 merged_ranges.push(range);
@@ -43,29 +43,29 @@ struct Sensor {
 }
 
 impl Sensor {
-    fn beacon_distance(&self) -> u64 {
+    const fn beacon_distance(&self) -> u64 {
         i64::abs_diff(self.sensor_coords.col, self.beacon_coords.col) + i64::abs_diff(self.sensor_coords.row, self.beacon_coords.row)
     }
 
-    fn row_distance(&self, row: i64) -> u64 {
+    const fn row_distance(&self, row: i64) -> u64 {
         i64::abs_diff(self.sensor_coords.row, row)
     }
 
-    fn get_covered_rows(&self) -> NumberRange {
+    const fn get_covered_rows(&self) -> NumberRange {
         NumberRange::new(
             self.sensor_coords.row - self.beacon_distance() as i64,
             self.sensor_coords.row + self.beacon_distance() as i64,
         )
     }
 
-    fn get_covered_cells(&self, row: i64) -> NumberRange {
+    const fn get_covered_cells(&self, row: i64) -> NumberRange {
         let delta = self.beacon_distance() as i64 - self.row_distance(row) as i64;
         NumberRange::new(self.sensor_coords.col - delta, self.sensor_coords.col + delta)
     }
 }
 
-fn parse_sensor_data(line: String) -> util::lexer::Result<Sensor> {
-    let mut lexer = util::Lexer::of(&line);
+fn parse_sensor_data(line: &str) -> util::lexer::Result<Sensor> {
+    let mut lexer = util::Lexer::of(line);
 
     lexer.literal("Sensor at x=")?;
     let sensor_col = lexer.number()?;
@@ -133,7 +133,7 @@ fn draw_sensor_map<const N: usize>(sensors: &[Sensor]) {
 }
 
 pub fn find_missing_beacon(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, i64)> {
-    let sensors = lines.map(parse_sensor_data).collect::<Result<Vec<_>, _>>()?;
+    let sensors = lines.map(|s| parse_sensor_data(&s)).collect::<Result<Vec<_>, _>>()?;
 
     // draw_sensor_map::<20>(&sensors);
 
@@ -144,12 +144,12 @@ pub fn find_missing_beacon(lines: impl Iterator<Item = String>) -> util::Generic
     let sum = ranges.iter().map(NumberRange::len).sum();
 
     let mut tuning_freq = 0;
-    for row in 0..=4000000 {
+    for row in 0..=4_000_000 {
         let mut ranges: Vec<_> = sensors
             .iter()
             .map(|sensor| sensor.get_covered_cells(row))
             .filter(|range| !range.is_empty())
-            .map(|range| range & NumberRange::new(0, 4000000))
+            .map(|range| range & NumberRange::new(0, 4_000_000))
             .filter(|range| !range.is_empty())
             .collect();
         sort_and_merge(&mut ranges);
@@ -157,7 +157,7 @@ pub fn find_missing_beacon(lines: impl Iterator<Item = String>) -> util::Generic
         if ranges.len() > 1 {
             let x = ranges[0].len() as i64 + 1;
             let y = row;
-            tuning_freq = x * 4000000 + y;
+            tuning_freq = x * 4_000_000 + y;
         }
     }
 

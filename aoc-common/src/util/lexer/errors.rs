@@ -20,7 +20,7 @@ pub enum ErrorKind {
 
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -32,13 +32,14 @@ pub struct Error {
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
 impl std::error::Error for Error {}
 
 impl Error {
+    #[must_use]
     pub fn eol(lexer: &Lexer<'_>, expected: Lexeme) -> Self {
         Self {
             str: lexer.s.to_owned(),
@@ -46,6 +47,7 @@ impl Error {
         }
     }
 
+    #[must_use]
     pub fn symbol(lexer: &Lexer<'_>, expected: Lexeme) -> Self {
         Self {
             str: lexer.s.to_owned(),
@@ -53,7 +55,8 @@ impl Error {
         }
     }
 
-    pub fn parse_error(lexer: &Lexer<'_>, error: ParseIntError) -> Self {
+    #[must_use]
+    pub fn parse_error(lexer: &Lexer<'_>, error: &ParseIntError) -> Self {
         Self {
             str: lexer.s.to_owned(),
             kind: ErrorKind::ParseIntError {

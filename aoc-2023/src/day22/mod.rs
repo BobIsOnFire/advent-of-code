@@ -4,9 +4,9 @@ use aoc_common::util;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Default)]
 struct Coord {
-    z: i64,
     x: i64,
     y: i64,
+    z: i64,
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -55,7 +55,7 @@ fn check_stable(brick: &Brick, coord_to_idx: &HashMap<Coord, usize>) -> bool {
 fn do_count_falling_bricks(supports: &[HashSet<usize>], supported_by: &[HashSet<usize>], current: usize, falling: &mut HashSet<usize>) {
     if supported_by[current].is_subset(falling) {
         falling.insert(current);
-        for next in supports[current].iter() {
+        for next in &supports[current] {
             do_count_falling_bricks(supports, supported_by, *next, falling);
         }
     }
@@ -63,7 +63,7 @@ fn do_count_falling_bricks(supports: &[HashSet<usize>], supported_by: &[HashSet<
 
 fn count_falling_bricks(supports: &[HashSet<usize>], supported_by: &[HashSet<usize>], start: usize) -> usize {
     let mut falling = HashSet::from([start]);
-    for next in supports[start].iter() {
+    for next in &supports[start] {
         do_count_falling_bricks(supports, supported_by, *next, &mut falling);
     }
     falling.len() - 1
@@ -104,14 +104,14 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
         .collect::<util::lexer::Result<Vec<_>>>()?;
 
     let mut coord_to_idx = HashMap::new();
-    for brick in bricks.iter() {
-        add_brick(brick, &mut coord_to_idx)
+    for brick in &bricks {
+        add_brick(brick, &mut coord_to_idx);
     }
 
     // Lower bricks should be falling first
     bricks.sort_unstable_by_key(|brick| brick.from.z);
 
-    for brick in bricks.iter_mut() {
+    for brick in &mut bricks {
         remove_brick(brick, &mut coord_to_idx);
         while !check_stable(brick, &coord_to_idx) {
             brick.from.z -= 1;
@@ -123,7 +123,7 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
     let mut supports = vec![HashSet::new(); bricks.len()];
     let mut supported_by = vec![HashSet::new(); bricks.len()];
 
-    for brick in bricks.iter() {
+    for brick in &bricks {
         for x in brick.from.x..=brick.to.x {
             for y in brick.from.y..=brick.to.y {
                 if let Some(idx) = coord_to_idx.get(&Coord { z: brick.to.z + 1, x, y }) {

@@ -80,18 +80,18 @@ fn check_intersects_xy(first: &Stone, second: &Stone) -> bool {
         return false;
     }
 
-    let low_x = (low - s1.x as i128) * c as i128;
-    let high_x = (high - s1.x as i128) * c as i128;
+    let low_x = (low - i128::from(s1.x)) * i128::from(c);
+    let high_x = (high - i128::from(s1.x)) * i128::from(c);
 
-    if !(low_x..=high_x).contains(&(q1 as i128 * v1.x as i128)) {
+    if !(low_x..=high_x).contains(&(i128::from(q1) * i128::from(v1.x))) {
         // println!("Lines intersect out of bounds");
         return false;
     }
 
-    let low_y = (low - s1.y as i128) * c as i128;
-    let high_y = (high - s1.y as i128) * c as i128;
+    let low_y = (low - i128::from(s1.y)) * i128::from(c);
+    let high_y = (high - i128::from(s1.y)) * i128::from(c);
 
-    if !(low_y..=high_y).contains(&(q1 as i128 * v1.y as i128)) {
+    if !(low_y..=high_y).contains(&(i128::from(q1) * i128::from(v1.y))) {
         // println!("Lines intersect out of bounds");
         return false;
     }
@@ -151,9 +151,9 @@ pub fn magic_collisions(lines: impl Iterator<Item = String>) -> util::GenericRes
 
     let ultimate_stone = Stone {
         start: Coord {
-            x: 461522278379729,
-            y: 278970483473640,
-            z: 243127954482382,
+            x: 461_522_278_379_729,
+            y: 278_970_483_473_640,
+            z: 243_127_954_482_382,
         },
         velocity: Coord { x: -336, y: 29, z: 38 },
     };

@@ -16,11 +16,11 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn all() -> [Self; 4] {
+    pub const fn all() -> [Self; 4] {
         [Self::Right, Self::Down, Self::Left, Self::Up]
     }
 
-    pub fn opposite(&self) -> Self {
+    pub const fn opposite(self) -> Self {
         match self {
             Self::Right => Self::Left,
             Self::Down => Self::Up,
@@ -32,8 +32,8 @@ impl Direction {
 
 #[derive(Debug)]
 pub struct BoundsMapping {
-    pub right_side: Vec<(Coord, Direction)>,
-    pub left_side: Vec<(Coord, Direction)>,
-    pub down_side: Vec<(Coord, Direction)>,
-    pub up_side: Vec<(Coord, Direction)>,
+    pub right: Vec<(Coord, Direction)>,
+    pub left: Vec<(Coord, Direction)>,
+    pub down: Vec<(Coord, Direction)>,
+    pub up: Vec<(Coord, Direction)>,
 }

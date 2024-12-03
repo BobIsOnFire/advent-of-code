@@ -13,7 +13,7 @@ impl From<char> for Tile {
             'S' => Self::Start,
             '.' => Self::Plot,
             '#' => Self::Rock,
-            _ => panic!("Unknown tile char {}", value),
+            _ => panic!("Unknown tile char {value}"),
         }
     }
 }
@@ -24,6 +24,8 @@ fn count_tiles(tilemap: &VecMatrix<Tile>, start: MatrixIndex, steps: usize, odd:
 
     let mut front = vec![start];
 
+    // if-else looks much cleaner here IMO
+    #[allow(clippy::bool_to_int_with_if)]
     let mut tile_count = if odd { 0 } else { 1 };
 
     for step in 1..=steps {

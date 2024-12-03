@@ -6,15 +6,15 @@ struct ReportView<'a> {
 }
 
 impl<'a> ReportView<'a> {
-    fn new_strict(numbers: &'a [u64]) -> Self {
+    const fn new_strict(numbers: &'a [u64]) -> Self {
         Self { numbers, skipped_idx: None }
     }
 
-    fn new_dampened(numbers: &'a [u64], idx: usize) -> Self {
+    const fn new_dampened(numbers: &'a [u64], idx: usize) -> Self {
         Self { numbers, skipped_idx: Some(idx) }
     }
 
-    fn len(&self) -> usize {
+    const fn len(&self) -> usize {
         if self.skipped_idx.is_some() {
             self.numbers.len() - 1
         } else {
@@ -22,29 +22,28 @@ impl<'a> ReportView<'a> {
         }
     }
 
-    fn get_nth_pair(&self, n: usize) -> (u64, u64) {
+    const fn get_nth_pair(&self, n: usize) -> (u64, u64) {
         let (first, second) = if let Some(idx) = self.skipped_idx {
             if idx <= n {
-                (n+1, n+2)
-            } else if idx == n+1 {
-                (n, n+2)
+                (n + 1, n + 2)
+            } else if idx == n + 1 {
+                (n, n + 2)
             } else {
-                (n, n+1)
+                (n, n + 1)
             }
         } else {
-            (n, n+1)
+            (n, n + 1)
         };
 
         (self.numbers[first], self.numbers[second])
     }
 }
 
-
-fn check_view_safe(view: ReportView) -> bool {
+fn check_view_safe(view: &ReportView) -> bool {
     let (first, second) = view.get_nth_pair(0);
     let increasing = first < second;
 
-    for i in 0..(view.len() - 1){
+    for i in 0..(view.len() - 1) {
         let (first, second) = view.get_nth_pair(i);
 
         if first == second {
@@ -60,20 +59,20 @@ fn check_view_safe(view: ReportView) -> bool {
         }
     }
 
-    return true;
+    true
 }
 
 fn check_safe_strict(numbers: &[u64]) -> bool {
-    check_view_safe(ReportView::new_strict(numbers))
+    check_view_safe(&ReportView::new_strict(numbers))
 }
 
 fn check_safe_dampened(numbers: &[u64]) -> bool {
     for i in 0..numbers.len() {
-        if check_view_safe(ReportView::new_dampened(numbers, i)) {
+        if check_view_safe(&ReportView::new_dampened(numbers, i)) {
             return true;
         }
     }
-    return false;
+    false
 }
 
 pub fn count_safe_systems(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
@@ -81,7 +80,7 @@ pub fn count_safe_systems(lines: impl Iterator<Item = String>) -> util::GenericR
     let mut safe_counter_dampened = 0;
 
     for line in lines {
-        let numbers = line.split_ascii_whitespace().map(|num| num.parse()).collect::<Result<Vec<u64>, _>>()?;
+        let numbers = line.split_ascii_whitespace().map(str::parse).collect::<Result<Vec<u64>, _>>()?;
 
         if check_safe_strict(&numbers) {
             safe_counter_strict += 1;

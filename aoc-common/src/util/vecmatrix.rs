@@ -12,7 +12,7 @@ pub struct VecMatrix<T> {
     width: usize,
 }
 
-fn get_matrix_idx(data_idx: usize, width: usize) -> MatrixIndex {
+const fn get_matrix_idx(data_idx: usize, width: usize) -> MatrixIndex {
     MatrixIndex {
         row: data_idx / width,
         col: data_idx % width,
@@ -20,42 +20,50 @@ fn get_matrix_idx(data_idx: usize, width: usize) -> MatrixIndex {
 }
 
 impl<T> VecMatrix<T> {
-    pub fn with_data(data: Vec<T>, width: usize) -> Self {
+    #[must_use]
+    pub const fn with_data(data: Vec<T>, width: usize) -> Self {
         Self { data, width }
     }
 
-    pub fn new(width: usize) -> Self {
+    #[must_use]
+    pub const fn new(width: usize) -> Self {
         Self::with_data(vec![], width)
     }
 
-    pub fn width(&self) -> usize {
+    #[must_use]
+    pub const fn width(&self) -> usize {
         self.width
     }
 
+    #[must_use]
     pub fn height(&self) -> usize {
         self.len() / self.width()
     }
 
     pub fn push(&mut self, elem: T) {
-        self.data.push(elem)
+        self.data.push(elem);
     }
 
     pub fn pop(&mut self) -> Option<T> {
         self.data.pop()
     }
 
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
 
+    #[must_use]
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
+    #[must_use]
     pub fn data(&self) -> &[T] {
         &self.data
     }
 
+    #[must_use]
     pub fn get(&self, idx: MatrixIndex) -> Option<&T> {
         self.get_flat_idx(idx).and_then(|data_idx| self.data.get(data_idx))
     }
@@ -64,7 +72,8 @@ impl<T> VecMatrix<T> {
         self.get_flat_idx(idx).and_then(|data_idx| self.data.get_mut(data_idx))
     }
 
-    pub fn next_left(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
+    #[must_use]
+    pub const fn next_left(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if col == 0 {
             None
@@ -73,7 +82,8 @@ impl<T> VecMatrix<T> {
         }
     }
 
-    pub fn next_right(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
+    #[must_use]
+    pub const fn next_right(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if col >= self.width() - 1 {
             None
@@ -82,7 +92,8 @@ impl<T> VecMatrix<T> {
         }
     }
 
-    pub fn next_up(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
+    #[must_use]
+    pub const fn next_up(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if row == 0 {
             None
@@ -91,6 +102,7 @@ impl<T> VecMatrix<T> {
         }
     }
 
+    #[must_use]
     pub fn next_down(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if row >= self.height() - 1 {
@@ -102,7 +114,7 @@ impl<T> VecMatrix<T> {
 
     pub fn finish_row_with(&mut self, func: impl Fn() -> T) {
         let last_row_len = self.len() % self.width();
-        self.extend((last_row_len..self.width()).map(|_| func()))
+        self.extend((last_row_len..self.width()).map(|_| func()));
     }
 
     pub fn iter_enumerate(&self) -> impl Iterator<Item = (MatrixIndex, &T)> {
@@ -123,7 +135,7 @@ impl<T> VecMatrix<T> {
         self.data.iter_mut()
     }
 
-    fn get_flat_idx(&self, idx: MatrixIndex) -> Option<usize> {
+    const fn get_flat_idx(&self, idx: MatrixIndex) -> Option<usize> {
         if idx.col >= self.width {
             None
         } else {
@@ -148,7 +160,7 @@ impl<T> IndexMut<MatrixIndex> for VecMatrix<T> {
 
 impl<T> Extend<T> for VecMatrix<T> {
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
-        self.data.extend(iter)
+        self.data.extend(iter);
     }
 }
 

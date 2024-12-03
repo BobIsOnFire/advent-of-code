@@ -28,7 +28,7 @@ pub fn extrapolate_sequence(lines: impl Iterator<Item = String>) -> util::Generi
             if lexer.end().is_ok() {
                 None
             } else {
-                Some(lexer.whitespace().and_then(|_| lexer.number()))
+                Some(lexer.whitespace().and_then(|()| lexer.number()))
             }
         })
         .collect::<Result<Vec<i64>, _>>()?;

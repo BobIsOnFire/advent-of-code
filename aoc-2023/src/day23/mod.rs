@@ -11,7 +11,7 @@ enum Direction {
 }
 
 impl Direction {
-    fn opposite(&self) -> Self {
+    const fn opposite(self) -> Self {
         match self {
             Self::North => Self::South,
             Self::West => Self::East,
@@ -37,7 +37,7 @@ impl From<char> for Tile {
             '<' => Self::Slope(Direction::West),
             'v' => Self::Slope(Direction::South),
             '>' => Self::Slope(Direction::East),
-            _ => panic!("Unknown tile {}", value),
+            _ => panic!("Unknown tile {value}"),
         }
     }
 }
@@ -61,7 +61,7 @@ struct Vertex {
 }
 
 impl Vertex {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self { edges: vec![] }
     }
 }
@@ -158,7 +158,7 @@ fn do_find_max_path(
     visited.insert(start);
 
     let mut max_path = 0;
-    for edge in vertices.get(&start).unwrap().edges.iter() {
+    for edge in &vertices.get(&start).unwrap().edges {
         if !visited.contains(&edge.to) {
             let path = do_find_max_path(vertices, edge.to, end, visited, current + edge.length);
             max_path = usize::max(max_path, path);

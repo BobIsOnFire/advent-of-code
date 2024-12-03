@@ -4,16 +4,16 @@ mod data;
 use aoc_common::util::{self, VecMatrix};
 
 use self::{
-    cube::cube_mapping,
+    cube::get_cube_mapping,
     data::{BoundsMapping, Coord, Direction, Tile, TileMap},
 };
 
 fn flat_mapping(tilemap: &TileMap) -> BoundsMapping {
     let mut bounds = BoundsMapping {
-        right_side: vec![],
-        left_side: vec![],
-        down_side: vec![],
-        up_side: vec![],
+        right: vec![],
+        left: vec![],
+        down: vec![],
+        up: vec![],
     };
 
     for row in 0..tilemap.height() {
@@ -24,8 +24,8 @@ fn flat_mapping(tilemap: &TileMap) -> BoundsMapping {
         let first = tile_coords_iter.next().unwrap_or(Coord { row, col: 0 });
         let last = tile_coords_iter.last().unwrap_or(first);
 
-        bounds.right_side.push((first, Direction::Right));
-        bounds.left_side.push((last, Direction::Left));
+        bounds.right.push((first, Direction::Right));
+        bounds.left.push((last, Direction::Left));
     }
 
     for col in 0..tilemap.width() {
@@ -36,8 +36,8 @@ fn flat_mapping(tilemap: &TileMap) -> BoundsMapping {
         let first = tile_coords_iter.next().unwrap_or(Coord { row: 0, col });
         let last = tile_coords_iter.last().unwrap_or(first);
 
-        bounds.down_side.push((first, Direction::Down));
-        bounds.up_side.push((last, Direction::Up));
+        bounds.down.push((first, Direction::Down));
+        bounds.up.push((last, Direction::Up));
     }
 
     bounds
@@ -80,10 +80,10 @@ impl Board {
 
             if self.tilemap[next_coord].is_none() {
                 (next_coord, next_direction) = match self.direction {
-                    Direction::Right => self.bounds.right_side[next_coord.row],
-                    Direction::Down => self.bounds.down_side[next_coord.col],
-                    Direction::Left => self.bounds.left_side[next_coord.row],
-                    Direction::Up => self.bounds.up_side[next_coord.col],
+                    Direction::Right => self.bounds.right[next_coord.row],
+                    Direction::Down => self.bounds.down[next_coord.col],
+                    Direction::Left => self.bounds.left[next_coord.row],
+                    Direction::Up => self.bounds.up[next_coord.col],
                 };
             }
 
@@ -116,7 +116,7 @@ impl Board {
     }
 }
 
-fn tile_from_char(ch: char) -> Option<Tile> {
+const fn tile_from_char(ch: char) -> Option<Tile> {
     match ch {
         '.' => Some(Tile::Empty),
         '#' => Some(Tile::Wall),
@@ -148,7 +148,7 @@ pub fn traverse_map(mut lines: impl Iterator<Item = String>) -> util::GenericRes
 
     let move_data = lines.next().expect("Move data should exist");
 
-    let mappings = [flat_mapping(&tilemap), cube_mapping(&tilemap)];
+    let mappings = [flat_mapping(&tilemap), get_cube_mapping(&tilemap)];
     let mut passwords = [0, 0];
 
     for (mapping, password) in mappings.into_iter().zip(passwords.iter_mut()) {
@@ -157,12 +157,12 @@ pub fn traverse_map(mut lines: impl Iterator<Item = String>) -> util::GenericRes
         let mut lexer = util::Lexer::of(&move_data);
         while lexer.end().is_err() {
             if let Ok(count) = lexer.unsigned_number() {
-                board.move_next(count)
+                board.move_next(count);
             } else {
                 match lexer.symbol()? {
                     'R' => board.turn_clockwise(),
                     'L' => board.turn_counter_clockwise(),
-                    ch => panic!("Unknown turn symbol: {}", ch),
+                    ch => panic!("Unknown turn symbol: {ch}"),
                 }
             }
         }
@@ -170,5 +170,5 @@ pub fn traverse_map(mut lines: impl Iterator<Item = String>) -> util::GenericRes
         *password = board.coord.row * 1000 + board.coord.col * 4 + board.direction as usize;
     }
 
-    Ok((passwords[0], passwords[1]))
+    Ok(passwords.into())
 }

@@ -34,7 +34,7 @@ fn get_edges(tilemap: &VecMatrix<u8>, coord: MatrixIndex, min_length: usize, max
             current = current.and_then(|edge| {
                 next_idx(tilemap, edge.to, direction).map(|coord| Edge {
                     to: coord,
-                    weight: edge.weight + tilemap[coord] as u64,
+                    weight: edge.weight + u64::from(tilemap[coord]),
                 })
             });
 
@@ -177,8 +177,8 @@ impl FlowMap {
                 break;
             }
 
-            for edge in self.edges[node.coord].iter() {
-                let mut to_node = if let Some(next) = self.get_next_node(&node, edge) { next } else { continue };
+            for edge in &self.edges[node.coord] {
+                let Some(mut to_node) = self.get_next_node(&node, edge) else { continue };
                 if node.min_path + edge.weight < to_node.min_path {
                     self.nodes.remove(&to_node);
                     to_node.min_path = node.min_path + edge.weight;

@@ -13,7 +13,7 @@ impl Display for ParseType {
             Self::Outcome => "match outcome (Win, Lose or Draw)",
         };
 
-        write!(f, "Error while parsing {}", describe)
+        write!(f, "Error while parsing {describe}")
     }
 }
 
@@ -39,7 +39,7 @@ enum Shape {
 }
 
 impl Shape {
-    fn beats(&self) -> Self {
+    const fn beats(self) -> Self {
         match self {
             Self::Rock => Self::Scissors,
             Self::Paper => Self::Rock,
@@ -47,7 +47,7 @@ impl Shape {
         }
     }
 
-    fn loses_to(&self) -> Self {
+    const fn loses_to(self) -> Self {
         match self {
             Self::Rock => Self::Paper,
             Self::Paper => Self::Scissors,
@@ -55,12 +55,12 @@ impl Shape {
         }
     }
 
-    fn wins(&self, other: &Self) -> bool {
-        *other == self.beats()
+    fn wins(self, other: Self) -> bool {
+        other == self.beats()
     }
 
-    fn loses(&self, other: &Self) -> bool {
-        *other == self.loses_to()
+    fn loses(self, other: Self) -> bool {
+        other == self.loses_to()
     }
 }
 
@@ -69,7 +69,7 @@ pub struct OpponentTurn {
 }
 
 impl OpponentTurn {
-    fn new(shape: Shape) -> Self {
+    const fn new(shape: Shape) -> Self {
         Self { shape }
     }
 }
@@ -92,11 +92,11 @@ pub struct UserTurn {
 }
 
 impl UserTurn {
-    fn new(shape: Shape) -> Self {
+    const fn new(shape: Shape) -> Self {
         Self { shape }
     }
 
-    fn from_opponent_and_outcome(opponent: &OpponentTurn, outcome: &Outcome) -> Self {
+    const fn from_opponent_and_outcome(opponent: &OpponentTurn, outcome: Outcome) -> Self {
         match outcome {
             Outcome::Lose => Self::new(opponent.shape.beats()),
             Outcome::Draw => Self::new(opponent.shape),
@@ -127,9 +127,9 @@ pub enum Outcome {
 
 impl Outcome {
     fn from_turns(user: &UserTurn, opponent: &OpponentTurn) -> Self {
-        if user.shape.wins(&opponent.shape) {
+        if user.shape.wins(opponent.shape) {
             Self::Win
-        } else if user.shape.loses(&opponent.shape) {
+        } else if user.shape.loses(opponent.shape) {
             Self::Lose
         } else {
             Self::Draw
@@ -156,17 +156,17 @@ pub struct Match {
 }
 
 impl Match {
-    pub fn from_turns(opponent_turn: OpponentTurn, user_turn: UserTurn) -> Self {
-        let outcome = Outcome::from_turns(&user_turn, &opponent_turn);
+    pub fn from_turns(opponent_turn: &OpponentTurn, user_turn: UserTurn) -> Self {
+        let outcome = Outcome::from_turns(&user_turn, opponent_turn);
         Self { user_turn, outcome }
     }
 
-    pub fn from_opponent_and_outcome(opponent_turn: OpponentTurn, outcome: Outcome) -> Self {
-        let user_turn = UserTurn::from_opponent_and_outcome(&opponent_turn, &outcome);
+    pub const fn from_opponent_and_outcome(opponent_turn: &OpponentTurn, outcome: Outcome) -> Self {
+        let user_turn = UserTurn::from_opponent_and_outcome(opponent_turn, outcome);
         Self { user_turn, outcome }
     }
 
-    pub fn score(&self) -> usize {
+    pub const fn score(&self) -> usize {
         let user_score = match self.user_turn.shape {
             Shape::Rock => 1,
             Shape::Paper => 2,

@@ -58,7 +58,7 @@ fn parse_direction(ch: char) -> Result<Direction, String> {
     match ch {
         'L' => Ok(Direction::Left),
         'R' => Ok(Direction::Right),
-        ch => Err(format!("Invalid direction char: {}", ch)),
+        ch => Err(format!("Invalid direction char: {ch}")),
     }
 }
 
@@ -72,13 +72,13 @@ fn get_node_period(mut node: usize, move_mapping: &[usize]) -> usize {
 
         if let Some(&visit) = visited_nodes.get(&node) {
             break current_step - visit;
-        } else {
-            visited_nodes.insert(node, current_step);
         }
+
+        visited_nodes.insert(node, current_step);
     }
 }
 
-fn get_lcm(num1: usize, num2: usize) -> usize {
+const fn get_lcm(num1: usize, num2: usize) -> usize {
     let gcd = {
         let shift = (num1 | num2).trailing_zeros();
         let mut num1 = num1 >> num1.trailing_zeros();
@@ -149,7 +149,7 @@ pub fn count_steps(mut lines: impl Iterator<Item = String>) -> util::GenericResu
         .iter()
         .map(|mut node| {
             let mut next_id = 0;
-            for direction in directions.iter() {
+            for direction in &directions {
                 next_id = match direction {
                     Direction::Left => node.left_id,
                     Direction::Right => node.right_id,

@@ -44,11 +44,11 @@ pub fn count_overlaps(lines: impl Iterator<Item = String>) -> util::GenericResul
         let overlap = first & second;
 
         if overlap == first || overlap == second {
-            answers.contains += 1
+            answers.contains += 1;
         }
 
         if !overlap.is_empty() {
-            answers.overlaps += 1
+            answers.overlaps += 1;
         }
     }
 

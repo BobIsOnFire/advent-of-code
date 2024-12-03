@@ -7,13 +7,13 @@ struct Coord {
 }
 
 impl Coord {
-    fn next(&self, direction: Direction, moves: usize) -> Self {
+    const fn next(&self, direction: &Direction, moves: usize) -> Self {
         let moves = moves as i64;
         match direction {
-            Direction::Left => Coord { row: self.row, col: self.col - moves },
-            Direction::Right => Coord { row: self.row, col: self.col + moves },
-            Direction::Up => Coord { row: self.row - moves, col: self.col },
-            Direction::Down => Coord { row: self.row + moves, col: self.col },
+            Direction::Left => Self { row: self.row, col: self.col - moves },
+            Direction::Right => Self { row: self.row, col: self.col + moves },
+            Direction::Up => Self { row: self.row - moves, col: self.col },
+            Direction::Down => Self { row: self.row + moves, col: self.col },
         }
     }
 }
@@ -32,7 +32,7 @@ impl Direction {
             'D' => Self::Down,
             'L' => Self::Left,
             'U' => Self::Up,
-            _ => panic!("Unknown direction letter: {}", ch),
+            _ => panic!("Unknown direction letter: {ch}"),
         }
     }
 
@@ -42,7 +42,7 @@ impl Direction {
             '1' => Self::Down,
             '2' => Self::Left,
             '3' => Self::Up,
-            _ => panic!("Unknown direction digit: {}", ch),
+            _ => panic!("Unknown direction digit: {ch}"),
         }
     }
 }
@@ -55,23 +55,23 @@ struct HorizontalBorder {
 }
 
 impl HorizontalBorder {
-    fn width(&self) -> usize {
+    const fn width(&self) -> usize {
         (self.col_to - self.col_from + 1) as usize
     }
 
-    fn contains(&self, other: &HorizontalBorder) -> bool {
+    const fn contains(&self, other: &Self) -> bool {
         self.col_from <= other.col_from && self.col_to >= other.col_to
     }
 
-    fn is_extended_right(&self, other: &HorizontalBorder) -> bool {
+    const fn is_extended_right(&self, other: &Self) -> bool {
         self.col_to == other.col_from
     }
 
-    fn is_extended_left(&self, other: &HorizontalBorder) -> bool {
+    const fn is_extended_left(&self, other: &Self) -> bool {
         self.col_from == other.col_to
     }
 
-    fn intersects(&self, other: &HorizontalBorder) -> bool {
+    fn intersects(&self, other: &Self) -> bool {
         (self.col_from..=self.col_to).contains(&other.col_from)
             || (self.col_from..=self.col_to).contains(&other.col_to)
             || (other.col_from..=other.col_to).contains(&self.col_from)
@@ -84,7 +84,7 @@ fn get_covered_area(moves_data: Vec<(Direction, usize)>) -> usize {
     let mut borders = vec![];
 
     for (direction, moves) in moves_data {
-        let next = current.next(direction, moves);
+        let next = current.next(&direction, moves);
 
         if current.row == next.row {
             borders.push(HorizontalBorder {
@@ -153,13 +153,13 @@ fn get_covered_area(moves_data: Vec<(Direction, usize)>) -> usize {
                 };
                 current.push(merged);
                 continue;
-            } else {
-                let extended = &mut current[idx];
-                area += extended.width() * (border.row - extended.row) as usize;
-                extended.row = border.row;
-                extended.col_from = border.col_from;
-                continue;
             }
+
+            let extended = &mut current[idx];
+            area += extended.width() * (border.row - extended.row) as usize;
+            extended.row = border.row;
+            extended.col_from = border.col_from;
+            continue;
         }
 
         if let Some(idx) = (0..current.len()).find(|idx| current[*idx].is_extended_right(&border)) {
@@ -194,7 +194,7 @@ pub fn dig_lagoon(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
         lexer.literal(")")?;
         lexer.end()?;
 
-        moves_data_colored.push((direction, moves))
+        moves_data_colored.push((direction, moves));
     }
 
     let area = get_covered_area(moves_data);

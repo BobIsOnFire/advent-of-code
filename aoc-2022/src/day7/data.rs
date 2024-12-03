@@ -12,7 +12,7 @@ pub struct PlainFile {
 }
 
 impl PlainFile {
-    pub fn new(size: usize) -> Self {
+    pub const fn new(size: usize) -> Self {
         Self { size }
     }
 }
@@ -34,7 +34,7 @@ impl Directory {
     }
 
     pub fn set_parent(&mut self, parent: Inode) {
-        self.parent = parent
+        self.parent = parent;
     }
 
     pub fn add_file(&mut self, name: String, file: Inode) -> Option<()> {
@@ -50,7 +50,7 @@ impl Directory {
         self.contents.get(name).copied()
     }
 
-    pub fn get_parent(&self) -> Inode {
+    pub const fn get_parent(&self) -> Inode {
         self.parent
     }
 
@@ -73,7 +73,7 @@ pub enum File {
 }
 
 impl File {
-    pub fn plain(size: usize) -> Self {
+    pub const fn plain(size: usize) -> Self {
         Self::PlainFile(PlainFile::new(size))
     }
 
@@ -81,7 +81,7 @@ impl File {
         Self::Directory(Directory::new())
     }
 
-    pub fn as_directory(&self) -> Option<&Directory> {
+    pub const fn as_directory(&self) -> Option<&Directory> {
         match self {
             Self::PlainFile(_) => None,
             Self::Directory(dir) => Some(dir),
@@ -110,7 +110,7 @@ impl FileSystem {
         }
     }
 
-    pub fn root() -> Inode {
+    pub const fn root() -> Inode {
         0
     }
 
@@ -146,7 +146,7 @@ impl FileSystem {
         self.do_disk_usage_recursive(Self::root())
     }
 
-    pub fn walk_directory<'a>(&'a self, dir: &'a Directory) -> impl Iterator<Item = &File> + 'a {
+    pub fn walk_directory<'a>(&'a self, dir: &'a Directory) -> impl Iterator<Item = &'a File> + 'a {
         dir.list_directory().map(|i| self.get_file(i))
     }
 

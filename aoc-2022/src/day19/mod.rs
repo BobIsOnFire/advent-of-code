@@ -32,13 +32,13 @@ struct WorkerCost(ResourceMapping<u16>);
 struct Blueprint(ResourceMapping<WorkerCost>);
 
 impl ResourceType {
-    fn all_types() -> [Self; 4] {
+    const fn all_types() -> [Self; 4] {
         [Self::Ore, Self::Clay, Self::Obsidian, Self::Geode]
     }
 }
 
 impl<T> ResourceMapping<T> {
-    fn get(&self, res_type: ResourceType) -> &T {
+    const fn get(&self, res_type: ResourceType) -> &T {
         &self.data[res_type as usize]
     }
 
@@ -137,7 +137,7 @@ fn parse_resource_type(lexer: &mut util::Lexer) -> util::GenericResult<ResourceT
         "clay" => Ok(ResourceType::Clay),
         "obsidian" => Ok(ResourceType::Obsidian),
         "geode" => Ok(ResourceType::Geode),
-        _ => Err(format!("Unknown resource type: {}", data).into()),
+        _ => Err(format!("Unknown resource type: {data}").into()),
     }
 }
 

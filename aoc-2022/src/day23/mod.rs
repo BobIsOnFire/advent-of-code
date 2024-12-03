@@ -9,46 +9,46 @@ struct Coord {
 }
 
 impl Coord {
-    fn coords_around(&self) -> [Self; 8] {
+    const fn coords_around(self) -> [Self; 8] {
         [
-            Coord { row: self.row - 1, col: self.col - 1 },
-            Coord { row: self.row - 1, col: self.col },
-            Coord { row: self.row - 1, col: self.col + 1 },
-            Coord { row: self.row, col: self.col - 1 },
-            Coord { row: self.row, col: self.col + 1 },
-            Coord { row: self.row + 1, col: self.col - 1 },
-            Coord { row: self.row + 1, col: self.col },
-            Coord { row: self.row + 1, col: self.col + 1 },
+            Self { row: self.row - 1, col: self.col - 1 },
+            Self { row: self.row - 1, col: self.col },
+            Self { row: self.row - 1, col: self.col + 1 },
+            Self { row: self.row, col: self.col - 1 },
+            Self { row: self.row, col: self.col + 1 },
+            Self { row: self.row + 1, col: self.col - 1 },
+            Self { row: self.row + 1, col: self.col },
+            Self { row: self.row + 1, col: self.col + 1 },
         ]
     }
 
-    fn coords_around_at(&self, direction: Direction) -> [Self; 3] {
+    fn coords_around_at(self, direction: Direction) -> [Self; 3] {
         match direction {
-            Direction::North => [-1, 0, 1].map(|inc| Coord {
+            Direction::North => [-1, 0, 1].map(|inc| Self {
                 row: self.row - 1,
                 col: self.col + inc,
             }),
-            Direction::South => [-1, 0, 1].map(|inc| Coord {
+            Direction::South => [-1, 0, 1].map(|inc| Self {
                 row: self.row + 1,
                 col: self.col + inc,
             }),
-            Direction::West => [-1, 0, 1].map(|inc| Coord {
+            Direction::West => [-1, 0, 1].map(|inc| Self {
                 row: self.row + inc,
                 col: self.col - 1,
             }),
-            Direction::East => [-1, 0, 1].map(|inc| Coord {
+            Direction::East => [-1, 0, 1].map(|inc| Self {
                 row: self.row + inc,
                 col: self.col + 1,
             }),
         }
     }
 
-    fn coord_at(&self, direction: Direction) -> Self {
+    const fn coord_at(self, direction: Direction) -> Self {
         match direction {
-            Direction::North => Coord { row: self.row - 1, col: self.col },
-            Direction::South => Coord { row: self.row + 1, col: self.col },
-            Direction::West => Coord { row: self.row, col: self.col - 1 },
-            Direction::East => Coord { row: self.row, col: self.col + 1 },
+            Direction::North => Self { row: self.row - 1, col: self.col },
+            Direction::South => Self { row: self.row + 1, col: self.col },
+            Direction::West => Self { row: self.row, col: self.col - 1 },
+            Direction::East => Self { row: self.row, col: self.col + 1 },
         }
     }
 }
@@ -76,7 +76,7 @@ impl Field {
         Self { elves: HashSet::new() }
     }
 
-    fn with_elves(elves: HashSet<Coord>) -> Self {
+    const fn with_elves(elves: HashSet<Coord>) -> Self {
         Self { elves }
     }
 
@@ -92,7 +92,7 @@ impl Field {
         let mut top_left = *self.elves.iter().next().expect("At least one elf should exist in the field");
         let mut bottom_right = top_left;
 
-        for elf in self.elves.iter() {
+        for elf in &self.elves {
             top_left.row = top_left.row.min(elf.row);
             top_left.col = top_left.col.min(elf.col);
 
@@ -123,13 +123,13 @@ impl Field {
 
 impl std::fmt::Display for Field {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut elves = self.elves.iter().map(|e| format!("{}", e)).collect::<Vec<_>>();
+        let mut elves = self.elves.iter().map(|e| format!("{e}")).collect::<Vec<_>>();
         elves.sort();
         write!(f, "[{}]", elves.join(", "))
     }
 }
 
-fn direction_order(round: usize) -> [Direction; 4] {
+const fn direction_order(round: usize) -> [Direction; 4] {
     let initial_order = [Direction::North, Direction::South, Direction::West, Direction::East];
 
     [
@@ -144,15 +144,14 @@ fn play_round(field: &Field, round: usize) -> Field {
     // key is the final location of elf, value is the initial position of elf that moves there
     let mut elf_moves: HashMap<Coord, Coord> = HashMap::new();
 
-    for &elf in field.elves.iter() {
-        let elf_move = if !field.has_around(elf) {
-            elf // Not moving
-        } else {
+    for &elf in &field.elves {
+        let elf_move = if field.has_around(elf) {
             direction_order(round)
                 .into_iter()
                 .find(|&d| !field.has_around_at(elf, d))
-                .map(|d| elf.coord_at(d))
-                .unwrap_or(elf /* Nowhere to move, stay in place */)
+                .map_or(elf, |d| elf.coord_at(d))
+        } else {
+            elf // Not moving
         };
 
         if let Some(other_elf) = elf_moves.remove(&elf_move) {

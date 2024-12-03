@@ -23,7 +23,7 @@ fn parse_spring(ch: char) -> Spring {
         '.' => Spring::Operational,
         '#' => Spring::Damaged,
         '?' => Spring::Unknown,
-        _ => panic!("Unknown char: {}", ch),
+        _ => panic!("Unknown char: {ch}"),
     }
 }
 

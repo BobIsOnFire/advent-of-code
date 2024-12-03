@@ -1,6 +1,6 @@
 use aoc_common::util;
 
-const DECRYPTION_KEY: i64 = 811589153;
+const DECRYPTION_KEY: i64 = 811_589_153;
 
 pub fn decrypt_table(lines: impl Iterator<Item = String>) -> util::GenericResult<(i64, i64)> {
     let data = lines
@@ -39,7 +39,7 @@ pub fn decrypt_table(lines: impl Iterator<Item = String>) -> util::GenericResult
                     }
                 }
                 std::cmp::Ordering::Greater => {
-                    for p in ((new_pos + 1)..(pos + 1)).rev() {
+                    for p in ((new_pos + 1)..=pos).rev() {
                         numbers[p] = numbers[p - 1];
 
                         let order = pos_to_order[p - 1];

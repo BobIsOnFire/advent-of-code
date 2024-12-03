@@ -84,14 +84,14 @@ impl Piece {
     }
 
     fn plus_sign() -> Self {
-        use Tile::*;
+        use Tile::{Empty, Filled};
         Self {
             data: create_bitmap([[Empty, Filled, Empty], [Filled, Filled, Filled], [Empty, Filled, Empty]]).into(),
         }
     }
 
     fn angle() -> Self {
-        use Tile::*;
+        use Tile::{Empty, Filled};
         Self {
             data: create_bitmap([[Filled, Filled, Filled], [Filled, Empty, Empty], [Filled, Empty, Empty]]).into(),
         }
@@ -143,7 +143,7 @@ impl Chamber {
 
         let levels_to_add = usize::saturating_sub(row + piece.height(), self.height());
         for _ in 0..levels_to_add {
-            self.add_level()
+            self.add_level();
         }
 
         for (row_num, &row_data) in piece.data.iter().enumerate() {
@@ -171,7 +171,7 @@ impl Chamber {
 
     #[allow(unused)]
     fn draw(&self) {
-        for &(mut row_data) in self.tilemap.iter() {
+        for &(mut row_data) in &self.tilemap {
             draw_bitrow::<9>(row_data);
         }
         println!();
@@ -186,7 +186,7 @@ pub fn tetris_simulator(mut lines: impl Iterator<Item = String>) -> util::Generi
         .map(|ch| match ch {
             '<' => RockMove::Left,
             '>' => RockMove::Right,
-            _ => panic!("Unknown move char: {}", ch),
+            _ => panic!("Unknown move char: {ch}"),
         })
         .cycle();
 
@@ -200,16 +200,16 @@ pub fn tetris_simulator(mut lines: impl Iterator<Item = String>) -> util::Generi
                 match side_move {
                     RockMove::Left => rock_position.col -= 1,
                     RockMove::Right => rock_position.col += 1,
-                    _ => (),
+                    RockMove::Down => (),
                 };
             }
 
             if chamber.check_collision(&shape, rock_position, RockMove::Down) {
                 chamber.place(&shape, rock_position);
                 break;
-            } else {
-                rock_position.row -= 1;
             }
+
+            rock_position.row -= 1;
         }
         // chamber.draw();
     }

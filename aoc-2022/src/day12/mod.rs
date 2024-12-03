@@ -10,7 +10,7 @@ struct Tile {
 }
 
 impl Tile {
-    fn of(ch: char) -> Self {
+    const fn of(ch: char) -> Self {
         let height_ch = match ch {
             'S' => 'a',
             'E' => 'z',
@@ -26,7 +26,7 @@ impl Tile {
         }
     }
 
-    fn can_cross(&self, other: &Self) -> bool {
+    const fn can_cross(&self, other: &Self) -> bool {
         self.height < other.height || (self.height - other.height) <= 1
     }
 }
@@ -42,7 +42,7 @@ fn walk_paths(mat: &mut VecMatrix<Tile>) -> util::GenericResult<()> {
     mat[start].visited = true;
 
     loop {
-        for &idx in current.iter() {
+        for &idx in &current {
             let neighbours = [mat.next_up(idx), mat.next_left(idx), mat.next_down(idx), mat.next_right(idx)];
 
             for neigh in neighbours.into_iter().flatten() {

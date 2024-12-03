@@ -7,14 +7,14 @@ pub struct ArrayStack<T, const N: usize> {
 impl<T: std::fmt::Debug + Copy, const N: usize> std::fmt::Debug for ArrayStack<T, N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut res = vec![];
-        for el in self.array.iter() {
+        for el in &self.array {
             if el.is_none() {
                 break;
             }
 
             res.push(el.unwrap());
         }
-        write!(f, "{:?}", res)
+        write!(f, "{res:?}")
     }
 }
 
@@ -25,31 +25,30 @@ impl<T, const N: usize> Default for ArrayStack<T, N> {
 }
 
 impl<T, const N: usize> ArrayStack<T, N> {
+    #[must_use]
     pub fn new() -> Self {
         Self {
-            array: [(); N].map(|_| None),
+            array: [(); N].map(|()| None),
             head: 0,
         }
     }
 
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         self.head
     }
 
     pub fn push(&mut self, elem: T) {
-        if self.head == N {
-            panic!("ArrayStack limit exceeded");
-        }
+        assert!(self.head < N, "ArrayStack limit exceeded");
 
         self.array[self.head] = Some(elem);
         self.head += 1;
     }
 
-    pub fn top(&self) -> Option<&T> {
+    pub const fn top(&self) -> Option<&T> {
         if self.is_empty() {
             None
         } else {
@@ -67,6 +66,6 @@ impl<T, const N: usize> ArrayStack<T, N> {
     }
 
     pub fn reverse(&mut self) {
-        self.array[0..self.head].reverse()
+        self.array[0..self.head].reverse();
     }
 }

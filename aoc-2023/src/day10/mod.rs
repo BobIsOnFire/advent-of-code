@@ -11,7 +11,7 @@ enum Direction {
 }
 
 impl Direction {
-    fn opposite(&self) -> Self {
+    const fn opposite(self) -> Self {
         match self {
             Self::North => Self::South,
             Self::South => Self::North,
@@ -30,8 +30,8 @@ enum Tile {
 
 impl From<char> for Tile {
     fn from(value: char) -> Self {
-        use Direction::*;
-        use Tile::*;
+        use Direction::{East, North, South, West};
+        use Tile::{Ground, Pipe, Start};
         match value {
             '|' => Pipe(North, South),
             '-' => Pipe(West, East),
@@ -41,24 +41,24 @@ impl From<char> for Tile {
             'F' => Pipe(South, East),
             '.' => Ground,
             'S' => Start,
-            _ => panic!("Unknown tile: {}", value),
+            _ => panic!("Unknown tile: {value}"),
         }
     }
 }
 
 impl Tile {
-    fn has_south_pipe(&self) -> bool {
+    const fn has_south_pipe(self) -> bool {
         matches!(self, Self::Pipe(Direction::South, _) | Self::Pipe(_, Direction::South))
     }
 
-    fn has_east_pipe(&self) -> bool {
+    const fn has_east_pipe(self) -> bool {
         matches!(self, Self::Pipe(Direction::East, _) | Self::Pipe(_, Direction::East))
     }
 
-    fn next_direction(&self, direction: Direction) -> Option<Direction> {
+    fn next_direction(self, direction: Direction) -> Option<Direction> {
         let direction_out = direction.opposite();
 
-        match *self {
+        match self {
             Self::Pipe(first, second) if first == direction_out => Some(second),
             Self::Pipe(first, second) if second == direction_out => Some(first),
             _ => None,
@@ -67,7 +67,7 @@ impl Tile {
 }
 
 fn next_idx(tilemap: &VecMatrix<Tile>, idx: MatrixIndex, direction: Direction) -> Option<MatrixIndex> {
-    use Direction::*;
+    use Direction::{East, North, South, West};
     match direction {
         North => tilemap.next_up(idx),
         South => tilemap.next_down(idx),
@@ -83,7 +83,7 @@ enum Closure {
 }
 
 impl Closure {
-    fn opposite(&self) -> Closure {
+    const fn opposite(self) -> Self {
         match self {
             Self::Outside => Self::Inside,
             Self::Inside => Self::Outside,
@@ -97,7 +97,7 @@ pub fn find_enclosing_loop(lines: impl Iterator<Item = String>) -> util::Generic
 
     for line in lines {
         width = line.len();
-        tiles.extend(line.chars().map(Tile::from))
+        tiles.extend(line.chars().map(Tile::from));
     }
 
     let mut tilemap = VecMatrix::with_data(tiles, width);
@@ -109,7 +109,7 @@ pub fn find_enclosing_loop(lines: impl Iterator<Item = String>) -> util::Generic
 
     let mut valid_pipes = [Direction::North, Direction::South, Direction::West, Direction::East]
         .into_iter()
-        .flat_map(|d| next_idx(&tilemap, start_idx, d).map(|idx| (d, idx)))
+        .filter_map(|d| next_idx(&tilemap, start_idx, d).map(|idx| (d, idx)))
         .filter_map(|(d, idx)| tilemap[idx].next_direction(d).map(|_| d));
 
     let pipe1 = valid_pipes.next().expect("There should be two valid pipes coming out of starting tile");
@@ -139,8 +139,8 @@ pub fn find_enclosing_loop(lines: impl Iterator<Item = String>) -> util::Generic
     let mut enclosed_ground = 0;
 
     for (idx, tile) in tilemap.iter_enumerate() {
-        let left = enclosed_map.next_left(idx).map(|i| enclosed_map[i]).unwrap_or(Closure::Outside);
-        let top = enclosed_map.next_up(idx).map(|i| enclosed_map[i]).unwrap_or(Closure::Outside);
+        let left = enclosed_map.next_left(idx).map_or(Closure::Outside, |i| enclosed_map[i]);
+        let top = enclosed_map.next_up(idx).map_or(Closure::Outside, |i| enclosed_map[i]);
         if tile.has_south_pipe() {
             enclosed_map[idx] = left.opposite();
         } else if tile.has_east_pipe() {

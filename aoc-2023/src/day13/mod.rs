@@ -11,7 +11,7 @@ impl From<char> for Tile {
         match value {
             '.' => Self::Ash,
             '#' => Self::Rock,
-            _ => panic!("Invalid tile: {}", value),
+            _ => panic!("Invalid tile: {value}"),
         }
     }
 }

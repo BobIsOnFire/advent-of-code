@@ -41,8 +41,8 @@ impl LenseBox {
         self.lenses[pos] = value;
     }
 
-    fn remove_lense(&mut self, label: String) {
-        if let Some(pos) = self.label_to_pos.remove(&label) {
+    fn remove_lense(&mut self, label: &str) {
+        if let Some(pos) = self.label_to_pos.remove(label) {
             self.lenses.remove(pos);
             for other in self.label_to_pos.values_mut() {
                 if *other > pos {
@@ -55,7 +55,7 @@ impl LenseBox {
     fn process(&mut self, operation: Operation) {
         match operation.action {
             Action::Update(value) => self.update_lense(operation.label, value),
-            Action::Remove => self.remove_lense(operation.label),
+            Action::Remove => self.remove_lense(&operation.label),
         }
     }
 
@@ -71,7 +71,7 @@ fn parse_operation(s: &str) -> util::lexer::Result<Operation> {
     let action = match lexer.symbol()? {
         '=' => Action::Update(lexer.unsigned_number()?),
         '-' => Action::Remove,
-        ch => panic!("Unknown operation: {}", ch),
+        ch => panic!("Unknown operation: {ch}"),
     };
 
     lexer.end()?;

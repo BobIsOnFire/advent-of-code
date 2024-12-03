@@ -11,6 +11,7 @@ pub struct Lexer<'a> {
 
 #[allow(dead_code)]
 impl<'a> Lexer<'a> {
+    #[must_use]
     pub fn of(s: &'a str) -> Self {
         assert!(s.is_ascii(), "This lexer only works with ASCII strings, sorry");
         Self { s, pos: 0 }
@@ -20,7 +21,8 @@ impl<'a> Lexer<'a> {
         &self.s[self.pos..]
     }
 
-    pub fn position(&self) -> usize {
+    #[must_use]
+    pub const fn position(&self) -> usize {
         self.pos
     }
 
@@ -33,7 +35,7 @@ impl<'a> Lexer<'a> {
     }
 
     fn shift(&mut self, pos: usize) {
-        self.pos += pos
+        self.pos += pos;
     }
 
     pub fn symbol(&mut self) -> Result<char> {
@@ -124,7 +126,7 @@ impl<'a> Lexer<'a> {
     pub fn unsigned_number<Num: FromStr<Err = ParseIntError>>(&mut self) -> Result<Num> {
         let pos = self.digit_string()?;
 
-        let ret = self.slice()[..pos].parse().map_err(|e| Error::parse_error(self, e))?;
+        let ret = self.slice()[..pos].parse().map_err(|e| Error::parse_error(self, &e))?;
 
         self.shift(pos);
         Ok(ret)
@@ -138,7 +140,7 @@ impl<'a> Lexer<'a> {
             offset + offsetted.digit_string()?
         };
 
-        let ret = self.slice()[..pos].parse().map_err(|e| Error::parse_error(self, e))?;
+        let ret = self.slice()[..pos].parse().map_err(|e| Error::parse_error(self, &e))?;
 
         self.shift(pos);
         Ok(ret)
@@ -153,19 +155,19 @@ impl<'a> Lexer<'a> {
         ret
     }
 
-    pub fn chain<'c>(&'c mut self) -> LexerChain<'a, 'c> {
-        LexerChain { lexer: self }
+    pub fn chain<'c>(&'c mut self) -> Chain<'a, 'c> {
+        Chain { lexer: self }
     }
 }
 
 // 'a: the lifetime of the slice stored in Lexer<'a>
 // 'c: the lifetime of the reference to Lexer<'a> that we received in chain() method
-pub struct LexerChain<'a, 'c> {
+pub struct Chain<'a, 'c> {
     lexer: &'c mut Lexer<'a>,
 }
 
 #[allow(dead_code)]
-impl<'a, 'c> LexerChain<'a, 'c> {
+impl<'a> Chain<'a, '_> {
     pub fn end(self) -> Result<Self> {
         self.lexer.end()?;
         Ok(self)

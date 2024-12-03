@@ -17,7 +17,7 @@ impl From<char> for Category {
             'm' => Self::Musical,
             'a' => Self::Aerodynamic,
             's' => Self::Shiny,
-            _ => panic!("Unknown category {}", value),
+            _ => panic!("Unknown category {value}"),
         }
     }
 }
@@ -33,7 +33,7 @@ impl From<char> for Operation {
         match value {
             '<' => Self::Less,
             '>' => Self::Greater,
-            _ => panic!("Unknown operation {}", value),
+            _ => panic!("Unknown operation {value}"),
         }
     }
 }
@@ -60,11 +60,11 @@ struct Detail {
 }
 
 impl Detail {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self { rating: [0; 4] }
     }
 
-    fn get_rating(&self, category: Category) -> &usize {
+    const fn get_rating(&self, category: Category) -> &usize {
         &self.rating[category as usize]
     }
 
@@ -83,11 +83,11 @@ struct DetailRange {
 }
 
 impl DetailRange {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self { rating_ranges: [(1, 4000); 4] }
     }
 
-    fn get_rating_range(&self, category: Category) -> &(usize, usize) {
+    const fn get_rating_range(&self, category: Category) -> &(usize, usize) {
         &self.rating_ranges[category as usize]
     }
 
@@ -111,7 +111,7 @@ struct Condition {
 }
 
 impl Condition {
-    fn check(&self, detail: &Detail) -> bool {
+    const fn check(&self, detail: &Detail) -> bool {
         let rank = *detail.get_rating(self.category);
 
         match self.operation {
@@ -148,11 +148,9 @@ struct Rule {
 
 impl Rule {
     fn get_transition(&self, detail: &Detail) -> Option<&Transition> {
-        if let Some(cond) = &self.condition {
-            cond.check(detail).then_some(&self.transition)
-        } else {
-            Some(&self.transition)
-        }
+        self.condition
+            .as_ref()
+            .map_or(Some(&self.transition), |cond| cond.check(detail).then_some(&self.transition))
     }
 }
 
@@ -170,7 +168,7 @@ impl Workflow {
 
     fn all_transitions(&self, mut detail_range: DetailRange) -> Vec<(DetailRange, &Transition)> {
         let mut result = vec![];
-        for rule in self.rules.iter() {
+        for rule in &self.rules {
             if let Some(cond) = &rule.condition {
                 let (if_true, if_false) = cond.split(&detail_range);
 
@@ -200,7 +198,7 @@ fn do_accepted_range_size(workflows: &HashMap<String, Workflow>, current: &Workf
             Transition::Accept => total += next_range.size(),
             Transition::Reject => {}
             Transition::Next(next) => {
-                total += do_accepted_range_size(workflows, workflows.get(next).expect("All workflows should be defined"), next_range)
+                total += do_accepted_range_size(workflows, workflows.get(next).expect("All workflows should be defined"), next_range);
             }
         }
     }

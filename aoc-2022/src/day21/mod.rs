@@ -20,7 +20,7 @@ enum Job {
 
 #[allow(unused)]
 impl Job {
-    fn get_result(&self, first: i64, second: i64) -> i64 {
+    const fn get_result(&self, first: i64, second: i64) -> i64 {
         match self {
             Self::Number(num) => *num,
             Self::Operation { id1: _, id2: _, op } => match op {
@@ -48,7 +48,7 @@ impl Job {
         }
     }
 
-    fn get_first_operand(&self, second: i64, result: i64) -> i64 {
+    const fn get_first_operand(&self, second: i64, result: i64) -> i64 {
         match self {
             Self::Number(num) => *num,
             Self::Operation { id1: _, id2: _, op } => match op {
@@ -60,7 +60,7 @@ impl Job {
         }
     }
 
-    fn get_second_operand(&self, first: i64, result: i64) -> i64 {
+    const fn get_second_operand(&self, first: i64, result: i64) -> i64 {
         match self {
             Self::Number(num) => *num,
             Self::Operation { id1: _, id2: _, op } => match op {
@@ -111,9 +111,7 @@ impl MonkeySet {
 
     fn add_monkey_job(&mut self, name: &str, job: Job) {
         let id = self.get_or_create_monkey(name);
-        if self.jobs[id].is_some() {
-            panic!("Cannot insert one monkey with two jobs: {}", name);
-        }
+        assert!(self.jobs[id].is_none(), "Cannot insert one monkey with two jobs: {name}");
         self.jobs[id] = Some(job);
     }
 
@@ -122,18 +120,19 @@ impl MonkeySet {
     }
 
     fn get_monkey_id(&self, name: &str) -> Id {
-        *self.name_to_id.get(name).unwrap_or_else(|| panic!("{} not found", name))
+        *self.name_to_id.get(name).unwrap_or_else(|| panic!("{name} not found"))
     }
 
     fn get_result_by_id(&self, id: Id) -> i64 {
         let cached_result = self.operation_cache.borrow().get(&id).copied();
-        if let Some(num) = cached_result {
-            num
-        } else {
-            let num = self.get_job_by_id(id).get_result_by(|id| self.get_result_by_id(id));
-            self.operation_cache.borrow_mut().insert(id, num);
-            num
-        }
+        cached_result.map_or_else(
+            || {
+                let num = self.get_job_by_id(id).get_result_by(|id| self.get_result_by_id(id));
+                self.operation_cache.borrow_mut().insert(id, num);
+                num
+            },
+            |num| num,
+        )
     }
 
     fn check_depends_by_id(&self, id: Id, check_id: Id) -> bool {
@@ -141,15 +140,16 @@ impl MonkeySet {
             true
         } else {
             let cached_depends = self.depends_cache.borrow().get(&id).copied();
-            if let Some(depends) = cached_depends {
-                depends
-            } else {
-                let depends = self
-                    .get_job_by_id(id)
-                    .check_depends(check_id, |id, check_id| self.check_depends_by_id(id, check_id));
-                self.depends_cache.borrow_mut().insert(id, depends);
-                depends
-            }
+            cached_depends.map_or_else(
+                || {
+                    let depends = self
+                        .get_job_by_id(id)
+                        .check_depends(check_id, |id, check_id| self.check_depends_by_id(id, check_id));
+                    self.depends_cache.borrow_mut().insert(id, depends);
+                    depends
+                },
+                |depends| depends,
+            )
         }
     }
 
@@ -157,12 +157,10 @@ impl MonkeySet {
         if id == operand_id {
             result
         } else {
-            if !self.check_depends_by_id(id, operand_id) {
-                panic!(
-                    "Current id ({}) doesn't depend on operand that we are searching ({})! Are we lost?",
-                    id, operand_id
-                );
-            }
+            assert!(
+                self.check_depends_by_id(id, operand_id),
+                "Current id ({id}) doesn't depend on operand that we are searching ({operand_id})! Are we lost?"
+            );
 
             let job = self.get_job_by_id(id);
 
@@ -208,7 +206,7 @@ fn parse_operation_sign(sign: &str) -> util::GenericResult<Operation> {
         "-" => Ok(Operation::Sub),
         "*" => Ok(Operation::Multiply),
         "/" => Ok(Operation::Divide),
-        _ => Err(format!("Unknown operation {}", sign).into()),
+        _ => Err(format!("Unknown operation {sign}").into()),
     }
 }
 

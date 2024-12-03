@@ -12,24 +12,24 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
     cells.sort_unstable_by_key(|cell| cell.row);
     let mut empty_rows = 0;
     let mut prev = cells[0];
-    for cell in cells.iter_mut() {
+    for cell in &mut cells {
         empty_rows += (cell.row - prev.row).saturating_sub(1);
         prev = *cell;
-        cell.row += empty_rows * 999999;
+        cell.row += empty_rows * 999_999;
     }
 
     cells.sort_unstable_by_key(|cell| cell.col);
     let mut empty_cols = 0;
     let mut prev = cells[0];
-    for cell in cells.iter_mut() {
+    for cell in &mut cells {
         empty_cols += (cell.col - prev.col).saturating_sub(1);
         prev = *cell;
-        cell.col += empty_cols * 999999;
+        cell.col += empty_cols * 999_999;
     }
 
     let mut distance_sum = 0;
-    for cell in cells.iter() {
-        for other in cells.iter() {
+    for cell in &cells {
+        for other in &cells {
             if cell == other {
                 continue;
             }

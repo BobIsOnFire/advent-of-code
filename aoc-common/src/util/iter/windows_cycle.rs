@@ -4,7 +4,7 @@ pub struct WindowsCycle<'a, T, const N: usize> {
 }
 
 impl<'a, T, const N: usize> WindowsCycle<'a, T, N> {
-    pub fn new(data: &'a [T; N]) -> Self {
+    pub const fn new(data: &'a [T; N]) -> Self {
         Self { data, pos: 0 }
     }
 }

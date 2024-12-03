@@ -3,7 +3,7 @@ use aoc_common::util::{self, iter::ResultIteratorExtended, lexer, Lexer};
 fn parse_food_line(s: &str) -> lexer::Result<Option<usize>> {
     let mut lexer = Lexer::of(s);
 
-    let res = lexer.end().map(|_| None);
+    let res = lexer.end().map(|()| None);
     if res.is_ok() {
         return res;
     }

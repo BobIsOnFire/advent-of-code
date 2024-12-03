@@ -18,7 +18,7 @@ impl Card {
             'Q' => Ok(Self(12)),
             'K' => Ok(Self(13)),
             'A' => Ok(Self(14)),
-            _ => Err(format!("Unknown card type: {}", ch)),
+            _ => Err(format!("Unknown card type: {ch}")),
         }
     }
 }
@@ -34,25 +34,23 @@ enum Combination {
     FiveOfKind,
 }
 
-fn get_combination(cards: &[Card; 5], joker: Option<char>) -> Combination {
+fn get_combination(cards: [Card; 5], joker: Option<char>) -> Combination {
     let mut card_value_count = [0usize; 15];
-    for &card in cards {
+    for card in cards {
         card_value_count[card.0 as usize] += 1;
     }
 
     let joker_count = {
-        if let Some(ch) = joker {
+        joker.map_or(0, |ch| {
             let joker_card = Card::from_char_and_joker(ch, Some(ch)).unwrap();
             let joker_count = card_value_count[joker_card.0 as usize];
             card_value_count[joker_card.0 as usize] = 0;
             joker_count
-        } else {
-            0
-        }
+        })
     };
 
     let mut groups = card_value_count.into_iter().filter(|&count| count > 0).collect::<Vec<_>>();
-    groups.sort();
+    groups.sort_unstable();
     if let Some(last) = groups.last_mut() {
         // The best way to use jokers is to make them all same as the current biggest group, making it even bigger
         *last += joker_count;
@@ -116,9 +114,9 @@ fn parse_hand(line: &str, joker: Option<char>) -> util::GenericResult<Hand> {
         .try_into()
         .unwrap();
 
-    let combination = get_combination(&cards, joker);
+    let combination = get_combination(cards, joker);
 
-    Ok(Hand { combination, cards, bid })
+    Ok(Hand { cards, combination, bid })
 }
 
 pub fn play_poker(lines: impl Iterator<Item = String>) -> util::GenericResult<(u64, u64)> {

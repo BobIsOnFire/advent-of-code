@@ -1,12 +1,12 @@
 mod errors;
-use errors::CrateInputError::{self, *};
+use errors::CrateInputError::{self, EmptySpaceUnderCrate, IdenticalStackNumbers, NoEmptyLineAfterSeparator, NotEnoughCrates, StackNumbersTooBig};
 
 mod parser;
 
 use aoc_common::util::{self, lexer::Lexer, ArrayStack};
 
 fn get_initial_stacks<const N: usize>(lines: &mut impl Iterator<Item = String>) -> Result<[ArrayStack<char, 56>; N], CrateInputError> {
-    let mut stacks = [(); N].map(|_| ArrayStack::new());
+    let mut stacks = [(); N].map(|()| ArrayStack::new());
 
     for line in lines.take_while(|l| parser::parse_stack_separator::<N>(l).is_err()) {
         for (stack, opt) in parser::parse_stack_level::<N>(&line)?.into_iter().enumerate() {
@@ -22,7 +22,7 @@ fn get_initial_stacks<const N: usize>(lines: &mut impl Iterator<Item = String>) 
 
     // Iterator over input lines is putting elements from top to bottom, i.e.
     // last element is the one on the very bottom. Need to reverse this shit
-    stacks.iter_mut().for_each(|s| s.reverse());
+    stacks.iter_mut().for_each(ArrayStack::reverse);
 
     Ok(stacks)
 }

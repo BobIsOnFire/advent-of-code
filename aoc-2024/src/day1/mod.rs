@@ -22,7 +22,7 @@ pub fn get_distance(lines: impl Iterator<Item = String>) -> util::GenericResult<
 
     // the problem asks to find number of times left numbers appear in right list, multiplied by the number itself
     // we can reinterpret that to sum of right numbers that also exist in left list to make calculations easier
-    let left_set = HashSet::<u64>::from_iter(left.iter().copied());
+    let left_set = left.iter().copied().collect::<HashSet<u64>>();
     let right_sum = right.iter().filter(|v| left_set.contains(v)).sum::<u64>();
 
     Ok((differences, right_sum))

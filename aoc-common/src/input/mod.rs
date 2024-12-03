@@ -25,6 +25,7 @@ where
         Self { title: title.into(), processor: None }
     }
 
+    #[must_use]
     pub fn solution(mut self, func: F) -> Self {
         self.processor = Some(func);
         self
@@ -43,11 +44,11 @@ where
 
         println!("--- Part 1 ---");
         println!();
-        println!("{}", ans1);
+        println!("{ans1}");
         println!();
         println!("--- Part 2 ---");
         println!();
-        println!("{}", ans2);
+        println!("{ans2}");
         println!();
 
         Ok(())
@@ -56,7 +57,7 @@ where
     pub fn run(self, input: impl AsRef<std::path::Path>) {
         let result = self.do_run(input);
         if let Err(e) = result {
-            eprintln!("{:#?}", e);
+            eprintln!("{e:#?}");
         }
     }
 }

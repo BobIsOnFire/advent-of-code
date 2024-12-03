@@ -2,7 +2,7 @@ use std::fmt::Debug;
 
 use aoc_common::util::{self, iter::IteratorExtended, BitSet};
 
-fn get_priority(ch: char) -> u64 {
+const fn get_priority(ch: char) -> u64 {
     match ch {
         'a'..='z' => (ch as u64) - ('a' as u64) + 1,
         'A'..='Z' => (ch as u64) - ('A' as u64) + 27,
@@ -15,9 +15,9 @@ fn bitset_from_contents(contents: impl AsRef<str>) -> BitSet {
 }
 
 fn find_misplaced<const N: usize>(contents: &[impl AsRef<str> + Debug; N]) -> util::GenericResult<u64> {
-    let mut set = bitset_from_contents(contents.get(0).expect("At least one content string expected"));
+    let mut set = bitset_from_contents(contents.first().expect("At least one content string expected"));
 
-    for cont in contents[1..].iter() {
+    for cont in &contents[1..] {
         set &= bitset_from_contents(cont);
     }
 
@@ -40,8 +40,8 @@ pub fn get_misplacings<const N: usize>(iter: impl Iterator<Item = String>) -> ut
         answers.groups += find_misplaced(&group)?;
 
         for line in group {
-            let (first, second) = line.split_at(line.len() / 2);
-            answers.compartments += find_misplaced(&[first, second])?;
+            let contents = line.split_at(line.len() / 2).into();
+            answers.compartments += find_misplaced(&contents)?;
         }
     }
 

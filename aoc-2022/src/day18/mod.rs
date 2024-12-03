@@ -43,11 +43,11 @@ impl Block {
 }
 
 impl Orientation {
-    fn all() -> [Self; 6] {
+    const fn all() -> [Self; 6] {
         [Self::X_UP, Self::X_DOWN, Self::Y_UP, Self::Y_DOWN, Self::Z_UP, Self::Z_DOWN]
     }
 
-    fn inverse(&self) -> Self {
+    const fn inverse(self) -> Self {
         match self {
             Self::X_UP => Self::X_DOWN,
             Self::X_DOWN => Self::X_UP,
@@ -64,13 +64,14 @@ impl Surface {
         Orientation::all().map(|orientation| Self { block, orientation })
     }
 
-    fn get_alternative(&self) -> Self {
+    const fn get_alternative(&self) -> Self {
+        use Orientation::{X_DOWN, X_UP, Y_DOWN, Y_UP, Z_DOWN, Z_UP};
+
         let mut result = Self {
             block: self.block,
             orientation: self.orientation.inverse(),
         };
 
-        use Orientation::*;
         match self.orientation {
             X_UP => result.block.x += 1,
             X_DOWN => result.block.x -= 1,
@@ -83,10 +84,11 @@ impl Surface {
         result
     }
 
-    fn get_side_blocks(&self) -> [Block; 4] {
+    const fn get_side_blocks(&self) -> [Block; 4] {
+        use Orientation::{X_DOWN, X_UP, Y_DOWN, Y_UP, Z_DOWN, Z_UP};
+
         let mut result = [self.block; 4];
 
-        use Orientation::*;
         match self.orientation {
             X_UP | X_DOWN => {
                 result[0].y -= 1;
@@ -159,9 +161,8 @@ pub fn find_surface_area(lines: impl Iterator<Item = String>) -> util::GenericRe
             }
             .unwrap();
 
-            if !visited.contains(&connected_surface) {
+            if visited.insert(connected_surface) {
                 assert!(surfaces.contains(&connected_surface));
-                visited.insert(connected_surface);
                 visit_stack.push(connected_surface);
             }
         }

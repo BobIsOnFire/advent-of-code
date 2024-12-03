@@ -50,23 +50,23 @@ impl From<Vertex> for Coord {
 }
 
 impl Edge {
-    fn reversed(&self) -> Self {
+    const fn reversed(&self) -> Self {
         Self {
             vertex_from: self.vertex_to,
             vertex_to: self.vertex_from,
         }
     }
 
-    fn is_vertical(&self) -> bool {
+    const fn is_vertical(&self) -> bool {
         self.vertex_from.col == self.vertex_to.col
     }
 
-    fn is_horizontal(&self) -> bool {
+    const fn is_horizontal(&self) -> bool {
         self.vertex_from.row == self.vertex_to.row
     }
 
     fn get_line_direction(&self) -> Direction {
-        use std::cmp::Ordering::*;
+        use std::cmp::Ordering::{Equal, Greater, Less};
         match self.vertex_to.row.cmp(&self.vertex_from.row) {
             Greater => Direction::Down,
             Equal => {
@@ -82,7 +82,7 @@ impl Edge {
 
     fn coord_range(&self) -> impl Iterator<Item = Coord> {
         let direction = self.get_line_direction();
-        let &Edge { vertex_from: from, vertex_to: to } = self;
+        let &Self { vertex_from: from, vertex_to: to } = self;
 
         let range: Box<dyn Iterator<Item = usize>> = match direction {
             Direction::Right => Box::new(from.col..to.col),
@@ -105,7 +105,7 @@ impl Face {
         self.top_left.neighbour(direction).map(|top_left| Self { top_left })
     }
 
-    fn top_left(&self) -> Vertex {
+    const fn top_left(&self) -> Vertex {
         self.top_left
     }
 
@@ -212,11 +212,11 @@ impl CubeNet {
             .filter(|e| self.vertex_colors.contains_key(&e.vertex_to))
             .collect();
 
-        for &edge in all_edges.iter() {
+        for &edge in &all_edges {
             let equivalent = all_edges
                 .iter()
                 .copied()
-                .chain(all_edges.iter().map(|e| e.reversed()))
+                .chain(all_edges.iter().map(Edge::reversed))
                 .find(|&other| edge != other && self.are_edges_equivalent(edge, other));
 
             self.edge_mapping.insert(edge, equivalent.unwrap_or(edge));
@@ -302,7 +302,7 @@ impl CubeNet {
             FaceKind::Side => {
                 for vertices in face.vertices_clockwise().windows_cycle().take(4) {
                     if let (Some(&v0), Some(&v1)) = (self.vertex_colors.get(vertices[0]), self.vertex_colors.get(vertices[1])) {
-                        use VertexKind::*;
+                        use VertexKind::{Bottom, Top};
                         #[rustfmt::skip]
                         let (v2, v3) = match (v0, v1) {
                             (Bottom(v0), Bottom(v1)) => (Top(   v1          ), Top(   v0          )),
@@ -346,27 +346,31 @@ impl CubeNet {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-pub fn cube_mapping(tile_map: &TileMap) -> BoundsMapping {
+pub fn get_cube_mapping(tile_map: &TileMap) -> BoundsMapping {
     let default = (Coord { row: 0, col: 0 }, Direction::Up);
     let mut bounds = BoundsMapping {
-        right_side: vec![default; tile_map.height()],
-        left_side: vec![default; tile_map.height()],
-        down_side: vec![default; tile_map.width()],
-        up_side: vec![default; tile_map.width()],
+        right: vec![default; tile_map.height()],
+        left: vec![default; tile_map.height()],
+        down: vec![default; tile_map.width()],
+        up: vec![default; tile_map.width()],
     };
 
     let cube_net = CubeNet::from_tilemap(tile_map);
 
-    for (edge, direction) in cube_net.set_bounds.iter() {
+    for (edge, direction) in &cube_net.set_bounds {
         let mapping = cube_net.edge_mapping.get(edge).unwrap();
-        let mapping_side = *cube_net.set_bounds.get(mapping).or(cube_net.set_bounds.get(&mapping.reversed())).unwrap();
+        let mapping_side = *cube_net
+            .set_bounds
+            .get(mapping)
+            .or_else(|| cube_net.set_bounds.get(&mapping.reversed()))
+            .unwrap();
 
         for (coord_from, mut coord_to) in edge.coord_range().zip(mapping.coord_range()) {
             let mapping_from = match direction {
-                Direction::Right => &mut bounds.right_side[coord_from.row],
-                Direction::Down => &mut bounds.down_side[coord_from.col],
-                Direction::Left => &mut bounds.left_side[coord_from.row],
-                Direction::Up => &mut bounds.up_side[coord_from.col],
+                Direction::Right => &mut bounds.right[coord_from.row],
+                Direction::Down => &mut bounds.down[coord_from.col],
+                Direction::Left => &mut bounds.left[coord_from.row],
+                Direction::Up => &mut bounds.up[coord_from.col],
             };
 
             if mapping_side == Direction::Right {

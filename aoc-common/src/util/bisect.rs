@@ -1,5 +1,8 @@
 pub trait Bisect: PartialEq {
+    #[must_use]
     fn next(&self) -> Self;
+
+    #[must_use]
     fn between(&self, other: &Self) -> Self;
 }
 

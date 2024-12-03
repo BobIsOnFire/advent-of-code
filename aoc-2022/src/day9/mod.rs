@@ -8,19 +8,19 @@ use aoc_common::util::{self, Lexer};
 #[derive(Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 struct Coords(i64, i64);
 
-impl Sub<Coords> for Coords {
-    type Output = Coords;
+impl Sub<Self> for Coords {
+    type Output = Self;
 
-    fn sub(self, rhs: Coords) -> Self::Output {
-        Coords(self.0 - rhs.0, self.1 - rhs.1)
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self(self.0 - rhs.0, self.1 - rhs.1)
     }
 }
 
-impl Add<Coords> for Coords {
-    type Output = Coords;
+impl Add<Self> for Coords {
+    type Output = Self;
 
-    fn add(self, rhs: Coords) -> Self::Output {
-        Coords(self.0 + rhs.0, self.1 + rhs.1)
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0, self.1 + rhs.1)
     }
 }
 
@@ -29,7 +29,7 @@ struct Rope<const N: usize> {
 }
 
 impl<const N: usize> Rope<N> {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self { knots: [Coords(0, 0); N] }
     }
 

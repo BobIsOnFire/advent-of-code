@@ -35,7 +35,7 @@ pub fn parse_stack_separator<const LEN: usize>(s: &str) -> lexer::Result<()> {
     let mut lexer = Lexer::of(s);
 
     for ind in 1..=LEN {
-        lexer.literal(&format!(" {} ", ind))?;
+        lexer.literal(&format!(" {ind} "))?;
 
         if ind != LEN {
             lexer.whitespace()?;

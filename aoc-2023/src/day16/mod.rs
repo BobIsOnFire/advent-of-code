@@ -27,7 +27,7 @@ impl From<char> for Tile {
             '\\' => Self::Mirror(Mirror::Backward),
             '|' => Self::Splitter(Splitter::Vertical),
             '-' => Self::Splitter(Splitter::Horizontal),
-            _ => panic!("Unknown tile: {}", value),
+            _ => panic!("Unknown tile: {value}"),
         }
     }
 }
@@ -41,9 +41,9 @@ enum Direction {
 }
 
 impl Direction {
-    fn bounce(self, mirror: Mirror) -> Self {
-        use Direction::*;
-        use Mirror::*;
+    const fn bounce(self, mirror: Mirror) -> Self {
+        use Direction::{Down, Left, Right, Up};
+        use Mirror::{Backward, Forward};
         match (self, mirror) {
             (Left, Backward) | (Right, Forward) => Up,
             (Up, Backward) | (Down, Forward) => Left,
@@ -68,7 +68,7 @@ impl VisitData {
         self.visits[direction as usize] = true;
     }
 
-    fn is_visited(&self, direction: Direction) -> bool {
+    const fn is_visited(&self, direction: Direction) -> bool {
         self.visits[direction as usize]
     }
 
@@ -129,8 +129,8 @@ impl<'a> BeamMap<'a> {
                 Tile::Empty => self.add_next_beam(beam, beam.direction),
                 Tile::Mirror(mirror) => self.add_next_beam(beam, beam.direction.bounce(mirror)),
                 Tile::Splitter(splitter) => {
-                    use Direction::*;
-                    use Splitter::*;
+                    use Direction::{Down, Left, Right, Up};
+                    use Splitter::{Horizontal, Vertical};
                     match (beam.direction, splitter) {
                         (Left | Right, Horizontal) | (Up | Down, Vertical) => self.add_next_beam(beam, beam.direction),
                         (Left | Right, Vertical) => {
@@ -184,7 +184,7 @@ pub fn count_shining_tiles(lines: impl Iterator<Item = String>) -> util::Generic
 
         for line in lines {
             width = line.len();
-            data.extend(line.chars().map(Tile::from))
+            data.extend(line.chars().map(Tile::from));
         }
         VecMatrix::with_data(data, width)
     };

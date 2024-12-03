@@ -12,7 +12,7 @@ pub enum CrateInputError {
 
 impl std::fmt::Display for CrateInputError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -20,6 +20,6 @@ impl std::error::Error for CrateInputError {}
 
 impl From<lexer::Error> for CrateInputError {
     fn from(err: lexer::Error) -> Self {
-        CrateInputError::ParsingFailed(err)
+        Self::ParsingFailed(err)
     }
 }

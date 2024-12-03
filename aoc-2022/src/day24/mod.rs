@@ -102,7 +102,7 @@ fn rounds_to_reach(field: &mut Field, start: Coord, end: Coord) -> usize {
 fn print_states(states: &HashSet<Coord>) {
     let mut formatted = states.iter().map(|c| format!("[{},{}]", c.row, c.col)).collect::<Vec<_>>();
     formatted.sort();
-    println!("[{}]", formatted.join(", "))
+    println!("[{}]", formatted.join(", "));
 }
 
 pub fn count_path_minutes(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {

@@ -1,10 +1,13 @@
 use std::iter::Peekable;
 
 mod data;
-use data::{File, FileSystem};
+use data::{Directory, File, FileSystem};
 
 mod parser;
-use parser::{ChangeDirArg::*, Command::*};
+use parser::{
+    ChangeDirArg::{Down, Root, Up},
+    Command::{ChangeDir, ListDir},
+};
 
 use aoc_common::util;
 
@@ -17,14 +20,14 @@ where
             None => break Ok(()),
             Some(line) => {
                 let (name, file) = parser::parse_file_entry(&line)?;
-                fs.create_file(name, file).ok_or(format!("{}: File already exists", line))?;
+                fs.create_file(name, file).ok_or_else(|| format!("{line}: File already exists"))?;
             }
         };
     }
 }
 
 fn directory_size((_, f): (usize, &File)) -> Option<usize> {
-    f.as_directory().map(|dir| dir.get_last_disk_usage())
+    f.as_directory().map(Directory::get_last_disk_usage)
 }
 
 pub fn get_directory_sizes(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
@@ -42,7 +45,7 @@ pub fn get_directory_sizes(lines: impl Iterator<Item = String>) -> util::Generic
             ChangeDir(Root) => fs.cd_root(),
             ChangeDir(Up) => fs.cd_up(),
             ChangeDir(Down(dir)) => {
-                fs.cd_down(&dir).ok_or(format!("{}: dir {} does not exist", line, dir))?;
+                fs.cd_down(&dir).ok_or_else(|| format!("{line}: dir {dir} does not exist"))?;
             }
             ListDir => list_directory(&mut fs, lines.by_ref())?,
         };

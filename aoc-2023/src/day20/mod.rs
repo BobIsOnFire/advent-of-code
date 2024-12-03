@@ -29,15 +29,17 @@ struct Broadcaster {
 }
 
 impl Broadcaster {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self { outputs: vec![] }
     }
 
-    fn send(&self, pulse: Pulse) -> impl Iterator<Item = Pulse> + '_ {
+    fn send(&self, pulse: &Pulse) -> impl Iterator<Item = Pulse> + '_ {
+        let pulse_to = pulse.to;
+        let pulse_signal = pulse.signal;
         self.outputs.iter().map(move |out| Pulse {
-            from: pulse.to,
+            from: pulse_to,
             to: *out,
-            signal: pulse.signal,
+            signal: pulse_signal,
         })
     }
 }
@@ -49,11 +51,12 @@ struct FlipFlop {
 }
 
 impl FlipFlop {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self { outputs: vec![], state: State::Off }
     }
 
-    fn send(&mut self, pulse: Pulse) -> impl Iterator<Item = Pulse> + '_ {
+    fn send(&mut self, pulse: &Pulse) -> impl Iterator<Item = Pulse> + '_ {
+        let pulse_to = pulse.to;
         let signal = match (pulse.signal, self.state) {
             (Signal::Low, State::Off) => {
                 self.state = State::On;
@@ -72,7 +75,7 @@ impl FlipFlop {
         };
 
         slice.iter().map(move |out| Pulse {
-            from: pulse.to,
+            from: pulse_to,
             to: *out,
             signal: signal.unwrap(),
         })
@@ -93,8 +96,10 @@ impl Conjunction {
         }
     }
 
-    fn send(&mut self, pulse: Pulse) -> impl Iterator<Item = Pulse> + '_ {
+    fn send(&mut self, pulse: &Pulse) -> impl Iterator<Item = Pulse> + '_ {
         *self.inputs.get_mut(&pulse.from).expect("Input was not added to hashmap") = pulse.signal;
+
+        let pulse_to = pulse.to;
 
         let out_signal = if self.inputs.values().all(|s| *s == Signal::High) {
             Signal::Low
@@ -103,7 +108,7 @@ impl Conjunction {
         };
 
         self.outputs.iter().map(move |out| Pulse {
-            from: pulse.to,
+            from: pulse_to,
             to: *out,
             signal: out_signal,
         })
@@ -130,10 +135,10 @@ impl Module {
 
     fn get_outputs(&self) -> &[Id] {
         match self {
-            Module::Empty => &[],
-            Module::Broadcaster(m) => &m.outputs,
-            Module::FlipFlop(m) => &m.outputs,
-            Module::Conjunction(m) => &m.outputs,
+            Self::Empty => &[],
+            Self::Broadcaster(m) => &m.outputs,
+            Self::FlipFlop(m) => &m.outputs,
+            Self::Conjunction(m) => &m.outputs,
         }
     }
 
@@ -145,8 +150,8 @@ impl Module {
 
     fn reset(&mut self) {
         match self {
-            Module::FlipFlop(m) => m.state = State::Off,
-            Module::Conjunction(m) => m.inputs.values_mut().for_each(|s| *s = Signal::Low),
+            Self::FlipFlop(m) => m.state = State::Off,
+            Self::Conjunction(m) => m.inputs.values_mut().for_each(|s| *s = Signal::Low),
             _ => {}
         }
     }
@@ -207,7 +212,7 @@ impl ModuleMap {
     }
 
     fn reset_modules(&mut self) {
-        self.modules.iter_mut().for_each(|m| m.reset());
+        self.modules.iter_mut().for_each(Module::reset);
     }
 }
 
@@ -261,9 +266,9 @@ pub fn press_buttons(lines: impl Iterator<Item = String>) -> util::GenericResult
 
             match modules.get_by_id_mut(pulse.to) {
                 Module::Empty => {}
-                Module::Broadcaster(m) => queue.extend(m.send(pulse)),
-                Module::FlipFlop(m) => queue.extend(m.send(pulse)),
-                Module::Conjunction(m) => queue.extend(m.send(pulse)),
+                Module::Broadcaster(m) => queue.extend(m.send(&pulse)),
+                Module::FlipFlop(m) => queue.extend(m.send(&pulse)),
+                Module::Conjunction(m) => queue.extend(m.send(&pulse)),
             }
 
             // println!("Queue: {:?}", queue);
@@ -295,15 +300,15 @@ pub fn press_buttons(lines: impl Iterator<Item = String>) -> util::GenericResult
 
             match modules.get_by_id_mut(pulse.to) {
                 Module::Empty => {}
-                Module::Broadcaster(m) => queue.extend(m.send(pulse)),
-                Module::FlipFlop(m) => queue.extend(m.send(pulse)),
-                Module::Conjunction(m) => queue.extend(m.send(pulse)),
+                Module::Broadcaster(m) => queue.extend(m.send(&pulse)),
+                Module::FlipFlop(m) => queue.extend(m.send(&pulse)),
+                Module::Conjunction(m) => queue.extend(m.send(&pulse)),
             }
 
             // println!("Queue: {:?}", queue);
         }
 
-        if presses == 100000 {
+        if presses == 100_000 {
             break;
         }
     }

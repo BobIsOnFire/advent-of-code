@@ -3,7 +3,7 @@ use aoc_common::util;
 fn find_first_marker<const N: usize>(line: &String) -> util::GenericResult<usize> {
     for (num, window) in line.as_bytes().windows(N).enumerate() {
         // check that all elements in the window are unique
-        let set: util::BitSet = window.iter().map(|ch| (ch - b'a') as u64).collect();
+        let set: util::BitSet = window.iter().map(|ch| u64::from(ch - b'a')).collect();
         if set.len() == N {
             return Ok(num + N);
         }

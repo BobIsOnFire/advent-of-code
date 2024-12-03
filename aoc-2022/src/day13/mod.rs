@@ -8,7 +8,7 @@ enum Outcome {
 }
 
 impl Outcome {
-    fn invert(self) -> Self {
+    const fn invert(self) -> Self {
         match self {
             Self::Correct => Self::Incorrect,
             Self::Incorrect => Self::Correct,
@@ -16,28 +16,12 @@ impl Outcome {
         }
     }
 
-    fn is_correct(&self) -> bool {
-        let num = match self {
-            Self::Correct => -1,
-            Self::Incorrect => 1,
-            Self::Undetermined => 0,
-        };
-
-        println!("{}", num);
-
-        match self {
-            Self::Correct => true,
-            Self::Incorrect => false,
-            Self::Undetermined => false,
-        }
+    const fn is_correct(&self) -> bool {
+        matches!(self, Self::Correct)
     }
 
-    fn is_determined(&self) -> bool {
-        match self {
-            Self::Correct => true,
-            Self::Incorrect => true,
-            Self::Undetermined => false,
-        }
+    const fn is_determined(&self) -> bool {
+        !matches!(self, Self::Undetermined)
     }
 }
 
@@ -50,7 +34,6 @@ fn exhaust_array(array: &mut Lexer) -> lexer::Result<()> {
         close_count += 1;
 
         if open_count == close_count {
-            eprintln!("After exhaustion: {:?}", array);
             return Ok(());
         }
     }
@@ -73,16 +56,11 @@ fn compare_int_and_array(int: i64, array: &mut Lexer) -> lexer::Result<Outcome> 
         return Ok(Outcome::Incorrect);
     }
 
-    let outcome = match array.number() {
-        Ok(num) => {
-            eprintln!("Comparing integer to array: first elem of array is integer");
-            compare_integers(int, num)
-        }
-        _ => {
-            array.literal("[")?;
-            eprintln!("Comparing integer to array: first elem of array is another array");
-            compare_int_and_array(int, array)?
-        }
+    let outcome = if let Ok(num) = array.number() {
+        compare_integers(int, num)
+    } else {
+        array.literal("[")?;
+        compare_int_and_array(int, array)?
     };
 
     if array.literal("]").is_err() {
@@ -96,16 +74,16 @@ fn compare_int_and_array(int: i64, array: &mut Lexer) -> lexer::Result<Outcome> 
 fn compare_arrays(left: &mut Lexer, right: &mut Lexer) -> lexer::Result<Outcome> {
     // Early return if one of the arrays is empty
     match (left.literal("]"), right.literal("]")) {
-        (Ok(_), Ok(_)) => {
+        (Ok(()), Ok(())) => {
             eprintln!("Both arrays are empty");
             return Ok(Outcome::Undetermined);
         }
-        (Ok(_), Err(_)) => {
+        (Ok(()), Err(_)) => {
             exhaust_array(right)?;
             eprintln!("Left array is empty");
             return Ok(Outcome::Correct);
         }
-        (Err(_), Ok(_)) => {
+        (Err(_), Ok(())) => {
             exhaust_array(right)?;
             eprintln!("Right array is empty");
             return Ok(Outcome::Incorrect);
@@ -116,7 +94,6 @@ fn compare_arrays(left: &mut Lexer, right: &mut Lexer) -> lexer::Result<Outcome>
     loop {
         eprintln!("Comparing two elements");
         let outcome = compare_data(left, right)?;
-        eprintln!("Result of element comparison: {:?}", outcome);
 
         if outcome.is_determined() {
             return Ok(outcome);
@@ -124,14 +101,14 @@ fn compare_arrays(left: &mut Lexer, right: &mut Lexer) -> lexer::Result<Outcome>
 
         // Are there still elements to compare in both arrays?
         match (left.literal(","), right.literal(",")) {
-            (Ok(_), Ok(_)) => continue,
-            (Ok(_), Err(_)) => {
+            (Ok(()), Ok(())) => continue,
+            (Ok(()), Err(_)) => {
                 exhaust_array(left)?;
                 exhaust_array(right)?;
                 eprintln!("No more elements in the right array");
                 return Ok(Outcome::Incorrect);
             }
-            (Err(_), Ok(_)) => {
+            (Err(_), Ok(())) => {
                 exhaust_array(left)?;
                 exhaust_array(right)?;
                 eprintln!("No more elements in the left array");

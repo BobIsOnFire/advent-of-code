@@ -10,10 +10,12 @@ pub enum NumberRange {
 }
 
 impl NumberRange {
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         *self == Self::Empty
     }
 
+    #[must_use]
     pub fn len(&self) -> usize {
         match self {
             Self::Empty => 0,
@@ -21,7 +23,8 @@ impl NumberRange {
         }
     }
 
-    pub fn new(from: i64, to: i64) -> Self {
+    #[must_use]
+    pub const fn new(from: i64, to: i64) -> Self {
         if from <= to {
             Self::NonEmpty(from, to)
         } else {
@@ -30,7 +33,8 @@ impl NumberRange {
     }
 
     // Total ordering based on the range start. Empty ranges are always equal to each other and less than non-empty
-    pub fn started_before(&self, rhs: &NumberRange) -> Ordering {
+    #[must_use]
+    pub fn started_before(&self, rhs: &Self) -> Ordering {
         match (self, rhs) {
             (Self::Empty, Self::Empty) => Ordering::Equal,
             (Self::Empty, _) => Ordering::Less,
@@ -99,7 +103,7 @@ impl std::fmt::Display for NumberRange {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Empty => write!(f, "[Empty]"),
-            Self::NonEmpty(from, to) => write!(f, "[{},{}]", from, to),
+            Self::NonEmpty(from, to) => write!(f, "[{from},{to}]"),
         }
     }
 }

@@ -8,7 +8,7 @@ struct CubeSet {
 }
 
 impl CubeSet {
-    fn contains(&self, other: &Self) -> bool {
+    const fn contains(&self, other: &Self) -> bool {
         self.red >= other.red && self.blue >= other.blue && self.green >= other.green
     }
 
@@ -46,7 +46,7 @@ pub fn play_cube_game(lines: impl Iterator<Item = String>) -> util::GenericResul
                 "red" => set.red = quantity,
                 "blue" => set.blue = quantity,
                 "green" => set.green = quantity,
-                _ => panic!("{}: unknown color {}", line, color_str),
+                _ => panic!("{line}: unknown color {color_str}"),
             }
 
             if lexer.literal(", ").is_ok() {

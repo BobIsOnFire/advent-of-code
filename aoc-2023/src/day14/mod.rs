@@ -15,7 +15,7 @@ impl From<char> for Tile {
             '.' => Self::Empty,
             '#' => Self::Square,
             'O' => Self::Circle,
-            _ => panic!("Unknown tile: {}", value),
+            _ => panic!("Unknown tile: {value}"),
         }
     }
 }
@@ -171,7 +171,7 @@ fn compress(tilemap: &VecMatrix<Tile>) -> Vec<u64> {
     let mut numbers = Vec::new();
 
     for chunk in tilemap.data().chunks(u64::BITS as usize) {
-        let num = chunk.iter().fold(0, |acc, tile| (acc << 1) | matches!(tile, Tile::Circle) as u64);
+        let num = chunk.iter().fold(0, |acc, tile| (acc << 1) | u64::from(matches!(tile, Tile::Circle)));
         numbers.push(num);
     }
 
@@ -184,7 +184,7 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
 
     for line in lines {
         width = line.len();
-        data.extend(line.chars().map(Tile::from))
+        data.extend(line.chars().map(Tile::from));
     }
 
     let mut tilemap = VecMatrix::with_data(data, width);
