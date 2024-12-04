@@ -2,7 +2,9 @@ use std::collections::{HashMap, HashSet};
 
 use aoc_common::util;
 
-pub fn count_scratchcards(lines: impl Iterator<Item = String>) -> util::GenericResult<(u32, usize)> {
+pub fn count_scratchcards(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(u32, usize)> {
     let mut total_worth = 0;
 
     let mut card_count: HashMap<usize, usize> = HashMap::new();

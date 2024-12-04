@@ -18,7 +18,11 @@ pub fn get_distance(lines: impl Iterator<Item = String>) -> util::GenericResult<
     left.sort_unstable();
     right.sort_unstable();
 
-    let differences = left.iter().zip(right.iter()).map(|(&l, &r)| u64::abs_diff(l, r)).sum::<u64>();
+    let differences = left
+        .iter()
+        .zip(right.iter())
+        .map(|(&l, &r)| u64::abs_diff(l, r))
+        .sum::<u64>();
 
     // the problem asks to find number of times left numbers appear in right list, multiplied by the number itself
     // we can reinterpret that to sum of right numbers that also exist in left list to make calculations easier

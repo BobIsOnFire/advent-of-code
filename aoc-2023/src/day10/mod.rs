@@ -48,11 +48,17 @@ impl From<char> for Tile {
 
 impl Tile {
     const fn has_south_pipe(self) -> bool {
-        matches!(self, Self::Pipe(Direction::South, _) | Self::Pipe(_, Direction::South))
+        matches!(
+            self,
+            Self::Pipe(Direction::South, _) | Self::Pipe(_, Direction::South)
+        )
     }
 
     const fn has_east_pipe(self) -> bool {
-        matches!(self, Self::Pipe(Direction::East, _) | Self::Pipe(_, Direction::East))
+        matches!(
+            self,
+            Self::Pipe(Direction::East, _) | Self::Pipe(_, Direction::East)
+        )
     }
 
     fn next_direction(self, direction: Direction) -> Option<Direction> {
@@ -66,7 +72,11 @@ impl Tile {
     }
 }
 
-fn next_idx(tilemap: &VecMatrix<Tile>, idx: MatrixIndex, direction: Direction) -> Option<MatrixIndex> {
+fn next_idx(
+    tilemap: &VecMatrix<Tile>,
+    idx: MatrixIndex,
+    direction: Direction,
+) -> Option<MatrixIndex> {
     use Direction::{East, North, South, West};
     match direction {
         North => tilemap.next_up(idx),
@@ -91,7 +101,9 @@ impl Closure {
     }
 }
 
-pub fn find_enclosing_loop(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn find_enclosing_loop(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut tiles = Vec::new();
     let mut width = 0;
 
@@ -107,27 +119,40 @@ pub fn find_enclosing_loop(lines: impl Iterator<Item = String>) -> util::Generic
         .find_map(|(idx, tile)| (*tile == Tile::Start).then_some(idx))
         .expect("Starting tile should exist");
 
-    let mut valid_pipes = [Direction::North, Direction::South, Direction::West, Direction::East]
-        .into_iter()
-        .filter_map(|d| next_idx(&tilemap, start_idx, d).map(|idx| (d, idx)))
-        .filter_map(|(d, idx)| tilemap[idx].next_direction(d).map(|_| d));
+    let mut valid_pipes = [
+        Direction::North,
+        Direction::South,
+        Direction::West,
+        Direction::East,
+    ]
+    .into_iter()
+    .filter_map(|d| next_idx(&tilemap, start_idx, d).map(|idx| (d, idx)))
+    .filter_map(|(d, idx)| tilemap[idx].next_direction(d).map(|_| d));
 
-    let pipe1 = valid_pipes.next().expect("There should be two valid pipes coming out of starting tile");
-    let pipe2 = valid_pipes.next().expect("There should be two valid pipes coming out of starting tile");
+    let pipe1 = valid_pipes
+        .next()
+        .expect("There should be two valid pipes coming out of starting tile");
+    let pipe2 = valid_pipes
+        .next()
+        .expect("There should be two valid pipes coming out of starting tile");
 
     tilemap[start_idx] = Tile::Pipe(pipe1, pipe2);
 
-    let loop_tiles = std::iter::successors(Some((start_idx, pipe1.opposite())), |(idx, direction)| {
-        let direction = tilemap[*idx].next_direction(*direction).expect("Main loop cannot be broken");
-        let idx = next_idx(&tilemap, *idx, direction).expect("Main loop cannot go out of bounds");
-        if idx == start_idx {
-            None
-        } else {
-            Some((idx, direction))
-        }
-    })
-    .map(|(idx, _)| idx)
-    .collect::<HashSet<_>>();
+    let loop_tiles =
+        std::iter::successors(Some((start_idx, pipe1.opposite())), |(idx, direction)| {
+            let direction = tilemap[*idx]
+                .next_direction(*direction)
+                .expect("Main loop cannot be broken");
+            let idx =
+                next_idx(&tilemap, *idx, direction).expect("Main loop cannot go out of bounds");
+            if idx == start_idx {
+                None
+            } else {
+                Some((idx, direction))
+            }
+        })
+        .map(|(idx, _)| idx)
+        .collect::<HashSet<_>>();
 
     for (idx, tile) in tilemap.iter_enumerate_mut() {
         if !loop_tiles.contains(&idx) {
@@ -135,12 +160,17 @@ pub fn find_enclosing_loop(lines: impl Iterator<Item = String>) -> util::Generic
         }
     }
 
-    let mut enclosed_map: VecMatrix<Closure> = VecMatrix::with_data(vec![Closure::Outside; tilemap.len()], tilemap.width());
+    let mut enclosed_map: VecMatrix<Closure> =
+        VecMatrix::with_data(vec![Closure::Outside; tilemap.len()], tilemap.width());
     let mut enclosed_ground = 0;
 
     for (idx, tile) in tilemap.iter_enumerate() {
-        let left = enclosed_map.next_left(idx).map_or(Closure::Outside, |i| enclosed_map[i]);
-        let top = enclosed_map.next_up(idx).map_or(Closure::Outside, |i| enclosed_map[i]);
+        let left = enclosed_map
+            .next_left(idx)
+            .map_or(Closure::Outside, |i| enclosed_map[i]);
+        let top = enclosed_map
+            .next_up(idx)
+            .map_or(Closure::Outside, |i| enclosed_map[i]);
         if tile.has_south_pipe() {
             enclosed_map[idx] = left.opposite();
         } else if tile.has_east_pipe() {

@@ -97,7 +97,10 @@ impl Conjunction {
     }
 
     fn send(&mut self, pulse: &Pulse) -> impl Iterator<Item = Pulse> + '_ {
-        *self.inputs.get_mut(&pulse.from).expect("Input was not added to hashmap") = pulse.signal;
+        *self
+            .inputs
+            .get_mut(&pulse.from)
+            .expect("Input was not added to hashmap") = pulse.signal;
 
         let pulse_to = pulse.to;
 
@@ -226,7 +229,9 @@ pub fn press_buttons(lines: impl Iterator<Item = String>) -> util::GenericResult
             modules.insert(name.to_owned(), Module::Broadcaster(Broadcaster::new()))
         } else {
             match name.split_at(1) {
-                ("&", name) => modules.insert(name.to_owned(), Module::Conjunction(Conjunction::new())),
+                ("&", name) => {
+                    modules.insert(name.to_owned(), Module::Conjunction(Conjunction::new()))
+                }
                 ("%", name) => modules.insert(name.to_owned(), Module::FlipFlop(FlipFlop::new())),
                 _ => panic!("Invalid input line"),
             }

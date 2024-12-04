@@ -8,7 +8,12 @@ struct Edge {
     weight: u64,
 }
 
-fn get_edges(tilemap: &VecMatrix<u8>, coord: MatrixIndex, min_length: usize, max_length: usize) -> Vec<Edge> {
+fn get_edges(
+    tilemap: &VecMatrix<u8>,
+    coord: MatrixIndex,
+    min_length: usize,
+    max_length: usize,
+) -> Vec<Edge> {
     #[derive(Clone, Copy)]
     enum Direction {
         Up,
@@ -17,7 +22,11 @@ fn get_edges(tilemap: &VecMatrix<u8>, coord: MatrixIndex, min_length: usize, max
         Right,
     }
 
-    fn next_idx(tilemap: &VecMatrix<u8>, coord: MatrixIndex, direction: Direction) -> Option<MatrixIndex> {
+    fn next_idx(
+        tilemap: &VecMatrix<u8>,
+        coord: MatrixIndex,
+        direction: Direction,
+    ) -> Option<MatrixIndex> {
         match direction {
             Direction::Up => tilemap.next_up(coord),
             Direction::Left => tilemap.next_left(coord),
@@ -28,7 +37,12 @@ fn get_edges(tilemap: &VecMatrix<u8>, coord: MatrixIndex, min_length: usize, max
 
     let mut edges = Vec::new();
 
-    for direction in [Direction::Up, Direction::Left, Direction::Down, Direction::Right] {
+    for direction in [
+        Direction::Up,
+        Direction::Left,
+        Direction::Down,
+        Direction::Right,
+    ] {
         let mut current = Some(Edge { to: coord, weight: 0 });
         for i in 1..=max_length {
             current = current.and_then(|edge| {
@@ -51,7 +65,11 @@ fn get_edges(tilemap: &VecMatrix<u8>, coord: MatrixIndex, min_length: usize, max
     edges
 }
 
-fn get_edges_map(tilemap: &VecMatrix<u8>, min_length: usize, max_length: usize) -> VecMatrix<Vec<Edge>> {
+fn get_edges_map(
+    tilemap: &VecMatrix<u8>,
+    min_length: usize,
+    max_length: usize,
+) -> VecMatrix<Vec<Edge>> {
     let edges_data = tilemap
         .iter_enumerate()
         .map(|(idx, _)| get_edges(tilemap, idx, min_length, max_length))
@@ -115,7 +133,8 @@ impl FlowMap {
             col: edges.width() - 1,
         };
 
-        let mut min_paths_horizontal = VecMatrix::with_data(vec![u64::MAX; edges.len()], edges.width());
+        let mut min_paths_horizontal =
+            VecMatrix::with_data(vec![u64::MAX; edges.len()], edges.width());
         min_paths_horizontal[start] = 0;
         let min_paths_vertical = min_paths_horizontal.clone();
 
@@ -172,27 +191,39 @@ impl FlowMap {
     fn find_min_path(mut self) -> u64 {
         // Classic Dijkstra
         loop {
-            let node = self.nodes.pop_first().expect("End node should be reachable");
+            let node = self
+                .nodes
+                .pop_first()
+                .expect("End node should be reachable");
             if node.coord == self.end {
                 break;
             }
 
             for edge in &self.edges[node.coord] {
-                let Some(mut to_node) = self.get_next_node(&node, edge) else { continue };
+                let Some(mut to_node) = self.get_next_node(&node, edge) else {
+                    continue;
+                };
                 if node.min_path + edge.weight < to_node.min_path {
                     self.nodes.remove(&to_node);
                     to_node.min_path = node.min_path + edge.weight;
 
                     match to_node.orientation {
-                        Orientation::Horizontal => self.min_paths_horizontal[to_node.coord] = to_node.min_path,
-                        Orientation::Vertical => self.min_paths_vertical[to_node.coord] = to_node.min_path,
+                        Orientation::Horizontal => {
+                            self.min_paths_horizontal[to_node.coord] = to_node.min_path
+                        }
+                        Orientation::Vertical => {
+                            self.min_paths_vertical[to_node.coord] = to_node.min_path
+                        }
                     }
                     self.nodes.insert(to_node);
                 }
             }
         }
 
-        u64::min(self.min_paths_horizontal[self.end], self.min_paths_vertical[self.end])
+        u64::min(
+            self.min_paths_horizontal[self.end],
+            self.min_paths_vertical[self.end],
+        )
     }
 }
 

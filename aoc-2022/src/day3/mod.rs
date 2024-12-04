@@ -14,8 +14,14 @@ fn bitset_from_contents(contents: impl AsRef<str>) -> BitSet {
     contents.as_ref().chars().map(get_priority).collect()
 }
 
-fn find_misplaced<const N: usize>(contents: &[impl AsRef<str> + Debug; N]) -> util::GenericResult<u64> {
-    let mut set = bitset_from_contents(contents.first().expect("At least one content string expected"));
+fn find_misplaced<const N: usize>(
+    contents: &[impl AsRef<str> + Debug; N],
+) -> util::GenericResult<u64> {
+    let mut set = bitset_from_contents(
+        contents
+            .first()
+            .expect("At least one content string expected"),
+    );
 
     for cont in &contents[1..] {
         set &= bitset_from_contents(cont);
@@ -24,7 +30,12 @@ fn find_misplaced<const N: usize>(contents: &[impl AsRef<str> + Debug; N]) -> ut
     if set.len() == 1 {
         Ok(set.iter().next().unwrap())
     } else {
-        Err(format!("Expected exactly 1 mismatched item, found {}:\n{:#?}", set.len(), contents).into())
+        Err(format!(
+            "Expected exactly 1 mismatched item, found {}:\n{:#?}",
+            set.len(),
+            contents
+        )
+        .into())
     }
 }
 
@@ -33,7 +44,9 @@ pub struct Misplacings {
     pub groups: u64,
 }
 
-pub fn get_misplacings<const N: usize>(iter: impl Iterator<Item = String>) -> util::GenericResult<(u64, u64)> {
+pub fn get_misplacings<const N: usize>(
+    iter: impl Iterator<Item = String>,
+) -> util::GenericResult<(u64, u64)> {
     let mut answers = Misplacings { compartments: 0, groups: 0 };
 
     for group in iter.groups::<N>() {

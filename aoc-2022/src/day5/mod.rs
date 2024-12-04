@@ -1,15 +1,23 @@
 mod errors;
-use errors::CrateInputError::{self, EmptySpaceUnderCrate, IdenticalStackNumbers, NoEmptyLineAfterSeparator, NotEnoughCrates, StackNumbersTooBig};
+use errors::CrateInputError::{
+    self, EmptySpaceUnderCrate, IdenticalStackNumbers, NoEmptyLineAfterSeparator, NotEnoughCrates,
+    StackNumbersTooBig,
+};
 
 mod parser;
 
 use aoc_common::util::{self, lexer::Lexer, ArrayStack};
 
-fn get_initial_stacks<const N: usize>(lines: &mut impl Iterator<Item = String>) -> Result<[ArrayStack<char, 56>; N], CrateInputError> {
+fn get_initial_stacks<const N: usize>(
+    lines: &mut impl Iterator<Item = String>,
+) -> Result<[ArrayStack<char, 56>; N], CrateInputError> {
     let mut stacks = [(); N].map(|()| ArrayStack::new());
 
     for line in lines.take_while(|l| parser::parse_stack_separator::<N>(l).is_err()) {
-        for (stack, opt) in parser::parse_stack_level::<N>(&line)?.into_iter().enumerate() {
+        for (stack, opt) in parser::parse_stack_level::<N>(&line)?
+            .into_iter()
+            .enumerate()
+        {
             if opt.is_none() && !stacks[stack].is_empty() {
                 return Err(EmptySpaceUnderCrate { line, stack_num: stack + 1 });
             }
@@ -42,7 +50,11 @@ fn get_pair_mut<T>(slice: &mut [T], i: usize, j: usize) -> (&mut T, &mut T) {
     }
 }
 
-fn move_elements<T, const S: usize>(from: &mut ArrayStack<T, S>, to: &mut ArrayStack<T, S>, count: usize) -> Option<()> {
+fn move_elements<T, const S: usize>(
+    from: &mut ArrayStack<T, S>,
+    to: &mut ArrayStack<T, S>,
+    count: usize,
+) -> Option<()> {
     for _ in 0..count {
         to.push(from.pop()?);
     }
@@ -50,10 +62,15 @@ fn move_elements<T, const S: usize>(from: &mut ArrayStack<T, S>, to: &mut ArrayS
 }
 
 fn collect_stack_tops<const N: usize>(stacks: [ArrayStack<char, 56>; N]) -> String {
-    stacks.into_iter().map(|s| s.top().copied().unwrap_or(' ')).collect()
+    stacks
+        .into_iter()
+        .map(|s| s.top().copied().unwrap_or(' '))
+        .collect()
 }
 
-pub fn reorder_stacks<const N: usize>(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(String, String)> {
+pub fn reorder_stacks<const N: usize>(
+    mut lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(String, String)> {
     let stacks = get_initial_stacks::<N>(lines.by_ref())?;
 
     let mut stacks_by_one = stacks;
@@ -91,5 +108,8 @@ pub fn reorder_stacks<const N: usize>(mut lines: impl Iterator<Item = String>) -
         }
     }
 
-    Ok((collect_stack_tops(stacks_by_one), collect_stack_tops(stacks_multiple)))
+    Ok((
+        collect_stack_tops(stacks_by_one),
+        collect_stack_tops(stacks_multiple),
+    ))
 }

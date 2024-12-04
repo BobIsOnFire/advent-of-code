@@ -53,7 +53,9 @@ fn count_tiles(tilemap: &VecMatrix<Tile>, start: MatrixIndex, steps: usize, odd:
     tile_count
 }
 
-pub fn count_garden_steps(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn count_garden_steps(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let tilemap = {
         let mut data = vec![];
         let mut width = 0;
@@ -70,8 +72,14 @@ pub fn count_garden_steps(lines: impl Iterator<Item = String>) -> util::GenericR
         .find_map(|(idx, tile)| (*tile == Tile::Start).then_some(idx))
         .expect("Start tile should exist");
 
-    println!("- Full odd:   {}", count_tiles(&tilemap, start_idx, 290, true));
-    println!("- Full even:  {}", count_tiles(&tilemap, start_idx, 290, false));
+    println!(
+        "- Full odd:   {}",
+        count_tiles(&tilemap, start_idx, 290, true)
+    );
+    println!(
+        "- Full even:  {}",
+        count_tiles(&tilemap, start_idx, 290, false)
+    );
 
     let corners = [
         MatrixIndex { row: 0, col: 0 },

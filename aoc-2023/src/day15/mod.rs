@@ -60,7 +60,11 @@ impl LenseBox {
     }
 
     fn get_total_power(&self) -> usize {
-        self.lenses.iter().enumerate().map(|(idx, &value)| (idx + 1) * value as usize).sum()
+        self.lenses
+            .iter()
+            .enumerate()
+            .map(|(idx, &value)| (idx + 1) * value as usize)
+            .sum()
     }
 }
 
@@ -80,10 +84,13 @@ fn parse_operation(s: &str) -> util::lexer::Result<Operation> {
 }
 
 fn get_hash(s: &str) -> u8 {
-    s.bytes().fold(0, |acc, byte| acc.wrapping_add(byte).wrapping_mul(17))
+    s.bytes()
+        .fold(0, |acc, byte| acc.wrapping_add(byte).wrapping_mul(17))
 }
 
-pub fn focus_lenses(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn focus_lenses(
+    mut lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let line = lines.next().expect("Input should not be empty");
     let hash_sum = line.split(',').map(get_hash).map(usize::from).sum();
 
@@ -91,7 +98,9 @@ pub fn focus_lenses(mut lines: impl Iterator<Item = String>) -> util::GenericRes
 
     let mut operations = line.split(',').map(parse_operation).end_on_error();
 
-    operations.by_ref().for_each(|op| boxes[get_hash(&op.label) as usize].process(op));
+    operations
+        .by_ref()
+        .for_each(|op| boxes[get_hash(&op.label) as usize].process(op));
     operations.into_err()?;
 
     let total_lense_sum = boxes

@@ -85,7 +85,11 @@ struct BeamMap<'a> {
 
 impl<'a> BeamMap<'a> {
     fn new(tilemap: &'a VecMatrix<Tile>, start_beam: Beam) -> Self {
-        let visits_data = tilemap.data().iter().map(|_| VisitData { visits: [false; 4] }).collect();
+        let visits_data = tilemap
+            .data()
+            .iter()
+            .map(|_| VisitData { visits: [false; 4] })
+            .collect();
         let mut visits = VecMatrix::with_data(visits_data, tilemap.width());
 
         visits[start_beam.location].visit(start_beam.direction);
@@ -120,7 +124,10 @@ impl<'a> BeamMap<'a> {
     }
 
     fn count_visited(&self) -> usize {
-        self.visits.iter().filter(|visits| visits.any_visited()).count()
+        self.visits
+            .iter()
+            .filter(|visits| visits.any_visited())
+            .count()
     }
 
     fn forward(&mut self) {
@@ -132,7 +139,9 @@ impl<'a> BeamMap<'a> {
                     use Direction::{Down, Left, Right, Up};
                     use Splitter::{Horizontal, Vertical};
                     match (beam.direction, splitter) {
-                        (Left | Right, Horizontal) | (Up | Down, Vertical) => self.add_next_beam(beam, beam.direction),
+                        (Left | Right, Horizontal) | (Up | Down, Vertical) => {
+                            self.add_next_beam(beam, beam.direction)
+                        }
                         (Left | Right, Vertical) => {
                             self.add_next_beam(beam, Up);
                             self.add_next_beam(beam, Down);
@@ -166,7 +175,10 @@ fn all_edge_beams(width: usize, height: usize) -> impl Iterator<Item = Beam> {
         direction: Direction::Left,
     });
 
-    top_beams.chain(bottom_beams).chain(left_beams).chain(right_beams)
+    top_beams
+        .chain(bottom_beams)
+        .chain(left_beams)
+        .chain(right_beams)
 }
 
 fn count_visited(tilemap: &VecMatrix<Tile>, start_beam: Beam) -> usize {
@@ -177,7 +189,9 @@ fn count_visited(tilemap: &VecMatrix<Tile>, start_beam: Beam) -> usize {
     beam_map.count_visited()
 }
 
-pub fn count_shining_tiles(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn count_shining_tiles(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let tilemap = {
         let mut width = 0;
         let mut data = vec![];

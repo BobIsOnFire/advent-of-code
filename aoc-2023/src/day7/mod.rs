@@ -49,7 +49,10 @@ fn get_combination(cards: [Card; 5], joker: Option<char>) -> Combination {
         })
     };
 
-    let mut groups = card_value_count.into_iter().filter(|&count| count > 0).collect::<Vec<_>>();
+    let mut groups = card_value_count
+        .into_iter()
+        .filter(|&count| count > 0)
+        .collect::<Vec<_>>();
     groups.sort_unstable();
     if let Some(last) = groups.last_mut() {
         // The best way to use jokers is to make them all same as the current biggest group, making it even bigger
@@ -129,10 +132,18 @@ pub fn play_poker(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
     }
 
     hands_plain.sort();
-    let winnings_plain = hands_plain.into_iter().enumerate().map(|(idx, hand)| (idx as u64 + 1) * hand.bid).sum();
+    let winnings_plain = hands_plain
+        .into_iter()
+        .enumerate()
+        .map(|(idx, hand)| (idx as u64 + 1) * hand.bid)
+        .sum();
 
     hands_joker.sort();
-    let winnings_joker = hands_joker.into_iter().enumerate().map(|(idx, hand)| (idx as u64 + 1) * hand.bid).sum();
+    let winnings_joker = hands_joker
+        .into_iter()
+        .enumerate()
+        .map(|(idx, hand)| (idx as u64 + 1) * hand.bid)
+        .sum();
 
     Ok((winnings_plain, winnings_joker))
 }

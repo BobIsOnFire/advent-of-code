@@ -23,7 +23,10 @@ fn decimal_digit_into_weird(num: i8) -> u8 {
 }
 
 fn convert_into_decimal(string: &str) -> i64 {
-    string.bytes().map(weird_digit_into_decimal).fold(0, |acc, num| acc * 5 + i64::from(num))
+    string
+        .bytes()
+        .map(weird_digit_into_decimal)
+        .fold(0, |acc, num| acc * 5 + i64::from(num))
 }
 
 fn convert_into_weird(mut number: i64) -> String {
@@ -37,10 +40,19 @@ fn convert_into_weird(mut number: i64) -> String {
         number = (number - digit) / 5;
     }
 
-    String::from_utf8(reversed_digits.into_iter().rev().map(decimal_digit_into_weird).collect()).expect("Weird digits should all be ASCII")
+    String::from_utf8(
+        reversed_digits
+            .into_iter()
+            .rev()
+            .map(decimal_digit_into_weird)
+            .collect(),
+    )
+    .expect("Weird digits should all be ASCII")
 }
 
-pub fn translate_numbers(lines: impl Iterator<Item = String>) -> util::GenericResult<(String, usize)> {
+pub fn translate_numbers(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(String, usize)> {
     let sum = lines.map(|s| convert_into_decimal(&s)).sum();
     let weird_sum = convert_into_weird(sum);
 

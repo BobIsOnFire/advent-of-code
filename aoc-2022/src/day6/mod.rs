@@ -12,8 +12,13 @@ fn find_first_marker<const N: usize>(line: &String) -> util::GenericResult<usize
     Err("Could not find any markers in the input".into())
 }
 
-pub fn find_markers<const P: usize, const M: usize>(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn find_markers<const P: usize, const M: usize>(
+    mut lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let line = lines.next().ok_or("Input is empty")?;
 
-    Ok((find_first_marker::<P>(&line)?, find_first_marker::<M>(&line)?))
+    Ok((
+        find_first_marker::<P>(&line)?,
+        find_first_marker::<M>(&line)?,
+    ))
 }

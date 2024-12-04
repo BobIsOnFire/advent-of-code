@@ -9,7 +9,10 @@ impl<T: Iterator, const N: usize> Iterator for Groups<T, N> {
         (0..N)
             .map(|_| self.iter.next())
             .collect::<Option<Vec<T::Item>>>()
-            .map(|v| v.try_into().unwrap_or_else(|_| panic!("Wow, how did this happen?")))
+            .map(|v| {
+                v.try_into()
+                    .unwrap_or_else(|_| panic!("Wow, how did this happen?"))
+            })
     }
 }
 

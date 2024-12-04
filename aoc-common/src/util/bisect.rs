@@ -34,8 +34,14 @@ bisect_numeric_impl!(u64);
 bisect_numeric_impl!(usize);
 
 pub fn bisect<T: Bisect>(bad: T, good: T, is_good: impl Fn(&T) -> bool) -> T {
-    assert!(is_good(&good), "Bad value submitted as 'good' arg for bisect");
-    assert!(!is_good(&bad), "Good value submitted as 'bad' arg for bisect");
+    assert!(
+        is_good(&good),
+        "Bad value submitted as 'good' arg for bisect"
+    );
+    assert!(
+        !is_good(&bad),
+        "Good value submitted as 'bad' arg for bisect"
+    );
 
     let mut lo = bad;
     let mut hi = good;

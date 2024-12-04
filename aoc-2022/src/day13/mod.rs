@@ -39,7 +39,9 @@ fn exhaust_array(array: &mut Lexer) -> lexer::Result<()> {
     }
 
     // Cannot find the end of array, drop error
-    Err(array.before_literal("]").expect_err("Closing brackets should have been exhausted"))
+    Err(array
+        .before_literal("]")
+        .expect_err("Closing brackets should have been exhausted"))
 }
 
 fn compare_integers(left: i64, right: i64) -> Outcome {
@@ -146,7 +148,9 @@ fn compare_data(left: &mut Lexer, right: &mut Lexer) -> lexer::Result<Outcome> {
     }
 }
 
-pub fn determine_order(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn determine_order(
+    mut lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut sum = 0;
     let mut idx = 0;
 

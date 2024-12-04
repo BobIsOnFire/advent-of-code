@@ -38,7 +38,8 @@ impl Vertex {
     }
 
     fn get_edge(&self, direction: Direction) -> Option<Edge> {
-        self.neighbour(direction).map(|vertex_to| Edge { vertex_from: *self, vertex_to })
+        self.neighbour(direction)
+            .map(|vertex_to| Edge { vertex_from: *self, vertex_to })
     }
 }
 
@@ -102,7 +103,9 @@ impl Edge {
 
 impl Face {
     fn neighbour(&self, direction: Direction) -> Option<Self> {
-        self.top_left.neighbour(direction).map(|top_left| Self { top_left })
+        self.top_left
+            .neighbour(direction)
+            .map(|top_left| Self { top_left })
     }
 
     const fn top_left(&self) -> Vertex {
@@ -122,11 +125,21 @@ impl Face {
     }
 
     fn vertices_clockwise(&self) -> [Vertex; 4] {
-        [self.top_left(), self.top_right(), self.down_right(), self.down_left()]
+        [
+            self.top_left(),
+            self.top_right(),
+            self.down_right(),
+            self.down_left(),
+        ]
     }
 
     fn vertices_counter_clockwise(&self) -> [Vertex; 4] {
-        [self.top_left(), self.down_left(), self.down_right(), self.top_right()]
+        [
+            self.top_left(),
+            self.down_left(),
+            self.down_right(),
+            self.top_right(),
+        ]
     }
 
     fn get_edge(&self, direction: Direction) -> Edge {
@@ -200,7 +213,8 @@ impl CubeNet {
         }
 
         let face = Face { top_left: start_vertex };
-        self.vertex_colors.insert(start_vertex, VertexKind::Bottom(0));
+        self.vertex_colors
+            .insert(start_vertex, VertexKind::Bottom(0));
         self.do_paint_face_vertices(tile_map, face, FaceKind::Bottom);
     }
 
@@ -208,7 +222,12 @@ impl CubeNet {
         let all_edges: Vec<_> = self
             .vertex_colors
             .keys()
-            .flat_map(|v| [v.get_edge(Direction::Right).unwrap(), v.get_edge(Direction::Down).unwrap()])
+            .flat_map(|v| {
+                [
+                    v.get_edge(Direction::Right).unwrap(),
+                    v.get_edge(Direction::Down).unwrap(),
+                ]
+            })
             .filter(|e| self.vertex_colors.contains_key(&e.vertex_to))
             .collect();
 
@@ -224,8 +243,16 @@ impl CubeNet {
     }
 
     fn map_set_bounds(&mut self) {
-        let vertical_edges = self.edge_mapping.keys().copied().filter(Edge::is_vertical).collect::<Vec<_>>();
-        let edge_starts_rows = vertical_edges.iter().map(|e| e.vertex_from.row).collect::<HashSet<_>>();
+        let vertical_edges = self
+            .edge_mapping
+            .keys()
+            .copied()
+            .filter(Edge::is_vertical)
+            .collect::<Vec<_>>();
+        let edge_starts_rows = vertical_edges
+            .iter()
+            .map(|e| e.vertex_from.row)
+            .collect::<HashSet<_>>();
 
         for row in edge_starts_rows {
             let row_edges = vertical_edges
@@ -240,8 +267,16 @@ impl CubeNet {
             self.set_bounds.insert(rightmost_edge, Direction::Right);
         }
 
-        let horizontal_edges = self.edge_mapping.keys().copied().filter(Edge::is_horizontal).collect::<Vec<_>>();
-        let edge_starts_cols = horizontal_edges.iter().map(|e| e.vertex_from.col).collect::<HashSet<_>>();
+        let horizontal_edges = self
+            .edge_mapping
+            .keys()
+            .copied()
+            .filter(Edge::is_horizontal)
+            .collect::<Vec<_>>();
+        let edge_starts_cols = horizontal_edges
+            .iter()
+            .map(|e| e.vertex_from.col)
+            .collect::<HashSet<_>>();
 
         for col in edge_starts_cols {
             let col_edges = horizontal_edges
@@ -265,14 +300,25 @@ impl CubeNet {
         self.paint_vertices(face, kind);
 
         for direction in Direction::all() {
-            if let Some(neigh) = face.neighbour(direction).filter(|f| tile_map[f.top_left.into()].is_some()) {
-                self.do_paint_face_vertices(tile_map, neigh, self.get_neighbour_kind(face, kind, direction));
+            if let Some(neigh) = face
+                .neighbour(direction)
+                .filter(|f| tile_map[f.top_left.into()].is_some())
+            {
+                self.do_paint_face_vertices(
+                    tile_map,
+                    neigh,
+                    self.get_neighbour_kind(face, kind, direction),
+                );
             }
         }
     }
 
     fn are_vertices_colored(&self, face: Face) -> bool {
-        face.vertices_clockwise().iter().filter_map(|v| self.vertex_colors.get(v)).count() == 4
+        face.vertices_clockwise()
+            .iter()
+            .filter_map(|v| self.vertex_colors.get(v))
+            .count()
+            == 4
     }
 
     fn paint_vertices(&mut self, face: Face, kind: FaceKind) {
@@ -281,9 +327,12 @@ impl CubeNet {
                 for vertices in face.vertices_clockwise().windows_cycle().take(4) {
                     if let Some(v) = self.vertex_colors.get(vertices[0]) {
                         let value = v.unwrap_bottom();
-                        self.vertex_colors.insert(*vertices[1], VertexKind::Bottom((value + 1) % 4));
-                        self.vertex_colors.insert(*vertices[2], VertexKind::Bottom((value + 2) % 4));
-                        self.vertex_colors.insert(*vertices[3], VertexKind::Bottom((value + 3) % 4));
+                        self.vertex_colors
+                            .insert(*vertices[1], VertexKind::Bottom((value + 1) % 4));
+                        self.vertex_colors
+                            .insert(*vertices[2], VertexKind::Bottom((value + 2) % 4));
+                        self.vertex_colors
+                            .insert(*vertices[3], VertexKind::Bottom((value + 3) % 4));
                         break;
                     }
                 }
@@ -292,16 +341,22 @@ impl CubeNet {
                 for vertices in face.vertices_counter_clockwise().windows_cycle().take(4) {
                     if let Some(v) = self.vertex_colors.get(vertices[0]) {
                         let value = v.unwrap_top();
-                        self.vertex_colors.insert(*vertices[1], VertexKind::Top((value + 1) % 4));
-                        self.vertex_colors.insert(*vertices[2], VertexKind::Top((value + 2) % 4));
-                        self.vertex_colors.insert(*vertices[3], VertexKind::Top((value + 3) % 4));
+                        self.vertex_colors
+                            .insert(*vertices[1], VertexKind::Top((value + 1) % 4));
+                        self.vertex_colors
+                            .insert(*vertices[2], VertexKind::Top((value + 2) % 4));
+                        self.vertex_colors
+                            .insert(*vertices[3], VertexKind::Top((value + 3) % 4));
                         break;
                     }
                 }
             }
             FaceKind::Side => {
                 for vertices in face.vertices_clockwise().windows_cycle().take(4) {
-                    if let (Some(&v0), Some(&v1)) = (self.vertex_colors.get(vertices[0]), self.vertex_colors.get(vertices[1])) {
+                    if let (Some(&v0), Some(&v1)) = (
+                        self.vertex_colors.get(vertices[0]),
+                        self.vertex_colors.get(vertices[1]),
+                    ) {
                         use VertexKind::{Bottom, Top};
                         #[rustfmt::skip]
                         let (v2, v3) = match (v0, v1) {
@@ -340,7 +395,8 @@ impl CubeNet {
     }
 
     fn are_edges_equivalent(&self, first: Edge, second: Edge) -> bool {
-        self.get_color(first.vertex_from) == self.get_color(second.vertex_from) && self.get_color(first.vertex_to) == self.get_color(second.vertex_to)
+        self.get_color(first.vertex_from) == self.get_color(second.vertex_from)
+            && self.get_color(first.vertex_to) == self.get_color(second.vertex_to)
     }
 }
 

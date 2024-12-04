@@ -81,15 +81,23 @@ impl Field {
     }
 
     fn has_around(&self, elf: Coord) -> bool {
-        elf.coords_around().iter().any(|other| self.elves.contains(other))
+        elf.coords_around()
+            .iter()
+            .any(|other| self.elves.contains(other))
     }
 
     fn has_around_at(&self, elf: Coord, direction: Direction) -> bool {
-        elf.coords_around_at(direction).iter().any(|other| self.elves.contains(other))
+        elf.coords_around_at(direction)
+            .iter()
+            .any(|other| self.elves.contains(other))
     }
 
     fn get_field_bounds(&self) -> (Coord, Coord) {
-        let mut top_left = *self.elves.iter().next().expect("At least one elf should exist in the field");
+        let mut top_left = *self
+            .elves
+            .iter()
+            .next()
+            .expect("At least one elf should exist in the field");
         let mut bottom_right = top_left;
 
         for elf in &self.elves {
@@ -123,14 +131,23 @@ impl Field {
 
 impl std::fmt::Display for Field {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut elves = self.elves.iter().map(|e| format!("{e}")).collect::<Vec<_>>();
+        let mut elves = self
+            .elves
+            .iter()
+            .map(|e| format!("{e}"))
+            .collect::<Vec<_>>();
         elves.sort();
         write!(f, "[{}]", elves.join(", "))
     }
 }
 
 const fn direction_order(round: usize) -> [Direction; 4] {
-    let initial_order = [Direction::North, Direction::South, Direction::West, Direction::East];
+    let initial_order = [
+        Direction::North,
+        Direction::South,
+        Direction::West,
+        Direction::East,
+    ];
 
     [
         initial_order[round % 4],
@@ -175,7 +192,9 @@ pub fn spread_elves(lines: impl Iterator<Item = String>) -> util::GenericResult<
     for (row, line) in lines.enumerate() {
         for (col, ch) in line.chars().enumerate() {
             if ch == '#' {
-                field.elves.insert(Coord { row: row as i32, col: col as i32 });
+                field
+                    .elves
+                    .insert(Coord { row: row as i32, col: col as i32 });
             }
         }
     }
@@ -195,7 +214,8 @@ pub fn spread_elves(lines: impl Iterator<Item = String>) -> util::GenericResult<
         if round == 10 {
             let (top_left, bottom_right) = field.get_field_bounds();
 
-            let total_area = (bottom_right.row - top_left.row + 1) as usize * (bottom_right.col - top_left.col + 1) as usize;
+            let total_area = (bottom_right.row - top_left.row + 1) as usize
+                * (bottom_right.col - top_left.col + 1) as usize;
             empty_tiles_at_round_10 = total_area - field.elves.len();
             // break;
         }

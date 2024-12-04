@@ -30,7 +30,9 @@ fn has_vertical_mirror_at(tilemap: &VecMatrix<Tile>, at_col: usize, smudge_total
                 }
             }
 
-            if let (Some(next_left), Some(next_right)) = (tilemap.next_left(left), tilemap.next_right(right)) {
+            if let (Some(next_left), Some(next_right)) =
+                (tilemap.next_left(left), tilemap.next_right(right))
+            {
                 left = next_left;
                 right = next_right;
             } else {
@@ -56,7 +58,8 @@ fn has_horizontal_mirror_at(tilemap: &VecMatrix<Tile>, at_row: usize, smudge_tot
                 }
             }
 
-            if let (Some(next_up), Some(next_down)) = (tilemap.next_up(up), tilemap.next_down(down)) {
+            if let (Some(next_up), Some(next_down)) = (tilemap.next_up(up), tilemap.next_down(down))
+            {
                 up = next_up;
                 down = next_down;
             } else {
@@ -93,7 +96,10 @@ pub fn count_mirrors(lines: impl Iterator<Item = String>) -> util::GenericResult
     let mut lines = lines.peekable();
 
     loop {
-        let pattern_lines = lines.by_ref().take_while(|line| !line.is_empty()).collect::<Vec<_>>();
+        let pattern_lines = lines
+            .by_ref()
+            .take_while(|line| !line.is_empty())
+            .collect::<Vec<_>>();
 
         let mut tilemap = VecMatrix::new(pattern_lines[0].len());
         for line in pattern_lines {

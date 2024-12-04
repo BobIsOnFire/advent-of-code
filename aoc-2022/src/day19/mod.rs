@@ -72,7 +72,8 @@ impl ResourceState {
     fn find_previous_state(&self) -> Option<Self> {
         let mut new_state = self.clone();
         for res_type in ResourceType::all_types() {
-            let previous_count = u16::checked_sub(*self.count.0.get(res_type), *self.workers.0.get(res_type))?;
+            let previous_count =
+                u16::checked_sub(*self.count.0.get(res_type), *self.workers.0.get(res_type))?;
 
             *new_state.count.0.get_mut(res_type) = previous_count;
         }
@@ -117,7 +118,11 @@ impl Blueprint {
             let worker_cost = self.0.get(worker_type);
 
             // If we could have built this type of worker on previous state, we already have a state where we built it
-            if prev_state.as_ref().and_then(|s| s.build_worker(worker_type, worker_cost)).is_some() {
+            if prev_state
+                .as_ref()
+                .and_then(|s| s.build_worker(worker_type, worker_cost))
+                .is_some()
+            {
                 continue;
             }
 
@@ -185,7 +190,10 @@ fn parse_blueprint(data: &str) -> util::GenericResult<Blueprint> {
 fn find_max_geodes(blueprint: &Blueprint, minutes: usize) -> u16 {
     let mut states = HashSet::from([ResourceState::new()]);
     for i in 1..minutes {
-        states = states.iter().flat_map(|s| blueprint.generate_states(s)).collect();
+        states = states
+            .iter()
+            .flat_map(|s| blueprint.generate_states(s))
+            .collect();
 
         println!("After {} minutes: len = {}", i, states.len());
     }

@@ -171,7 +171,9 @@ fn compress(tilemap: &VecMatrix<Tile>) -> Vec<u64> {
     let mut numbers = Vec::new();
 
     for chunk in tilemap.data().chunks(u64::BITS as usize) {
-        let num = chunk.iter().fold(0, |acc, tile| (acc << 1) | u64::from(matches!(tile, Tile::Circle)));
+        let num = chunk.iter().fold(0, |acc, tile| {
+            (acc << 1) | u64::from(matches!(tile, Tile::Circle))
+        });
         numbers.push(num);
     }
 

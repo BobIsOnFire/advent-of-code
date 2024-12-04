@@ -42,7 +42,11 @@ impl From<char> for Tile {
     }
 }
 
-fn next_idx(tilemap: &VecMatrix<Tile>, idx: MatrixIndex, direction: Direction) -> Option<MatrixIndex> {
+fn next_idx(
+    tilemap: &VecMatrix<Tile>,
+    idx: MatrixIndex,
+    direction: Direction,
+) -> Option<MatrixIndex> {
     match direction {
         Direction::North => tilemap.next_up(idx),
         Direction::West => tilemap.next_left(idx),
@@ -66,7 +70,11 @@ impl Vertex {
     }
 }
 
-fn create_edge(tilemap: &VecMatrix<Tile>, start: MatrixIndex, mut direction: Direction) -> Option<Edge> {
+fn create_edge(
+    tilemap: &VecMatrix<Tile>,
+    start: MatrixIndex,
+    mut direction: Direction,
+) -> Option<Edge> {
     let mut current = start;
     let mut length = 0;
 
@@ -85,7 +93,12 @@ fn create_edge(tilemap: &VecMatrix<Tile>, start: MatrixIndex, mut direction: Dir
         }
 
         let mut next_direction = None;
-        for dir in [Direction::North, Direction::West, Direction::South, Direction::East] {
+        for dir in [
+            Direction::North,
+            Direction::West,
+            Direction::South,
+            Direction::East,
+        ] {
             if dir == direction.opposite() {
                 continue;
             }
@@ -115,7 +128,12 @@ fn create_edge(tilemap: &VecMatrix<Tile>, start: MatrixIndex, mut direction: Dir
 fn create_vertex(tilemap: &VecMatrix<Tile>, start: MatrixIndex) -> Vertex {
     let mut vertex = Vertex::new();
 
-    for direction in [Direction::North, Direction::West, Direction::South, Direction::East] {
+    for direction in [
+        Direction::North,
+        Direction::West,
+        Direction::South,
+        Direction::East,
+    ] {
         if let Some(edge) = create_edge(tilemap, start, direction) {
             vertex.edges.push(edge);
         }
@@ -124,7 +142,11 @@ fn create_vertex(tilemap: &VecMatrix<Tile>, start: MatrixIndex) -> Vertex {
     vertex
 }
 
-fn do_create_vertices(tilemap: &VecMatrix<Tile>, start: MatrixIndex, vertices: &mut HashMap<MatrixIndex, Vertex>) {
+fn do_create_vertices(
+    tilemap: &VecMatrix<Tile>,
+    start: MatrixIndex,
+    vertices: &mut HashMap<MatrixIndex, Vertex>,
+) {
     if vertices.contains_key(&start) {
         return;
     }
@@ -177,7 +199,9 @@ fn find_max_path(tilemap: &VecMatrix<Tile>, start: MatrixIndex, end: MatrixIndex
     do_find_max_path(&vertices, start, end, &mut visited, 0)
 }
 
-pub fn find_longest_path(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn find_longest_path(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let tilemap = {
         let mut data = vec![];
         let mut width = 0;

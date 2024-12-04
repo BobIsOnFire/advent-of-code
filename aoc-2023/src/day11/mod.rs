@@ -4,7 +4,10 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
     let mut cells = Vec::new();
 
     for (row, line) in lines.enumerate() {
-        let cell_cols = line.chars().enumerate().filter_map(|(col, ch)| (ch == '#').then_some(col));
+        let cell_cols = line
+            .chars()
+            .enumerate()
+            .filter_map(|(col, ch)| (ch == '#').then_some(col));
 
         cells.extend(cell_cols.map(|col| MatrixIndex { row, col }));
     }
@@ -33,7 +36,8 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
             if cell == other {
                 continue;
             }
-            distance_sum += usize::abs_diff(cell.row, other.row) + usize::abs_diff(cell.col, other.col);
+            distance_sum +=
+                usize::abs_diff(cell.row, other.row) + usize::abs_diff(cell.col, other.col);
         }
     }
 

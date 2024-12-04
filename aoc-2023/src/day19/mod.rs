@@ -96,7 +96,10 @@ impl DetailRange {
     }
 
     fn size(&self) -> usize {
-        self.rating_ranges.iter().map(|(from, to)| (to + 1).saturating_sub(*from)).product()
+        self.rating_ranges
+            .iter()
+            .map(|(from, to)| (to + 1).saturating_sub(*from))
+            .product()
     }
 
     fn is_empty(&self) -> bool {
@@ -150,7 +153,9 @@ impl Rule {
     fn get_transition(&self, detail: &Detail) -> Option<&Transition> {
         self.condition
             .as_ref()
-            .map_or(Some(&self.transition), |cond| cond.check(detail).then_some(&self.transition))
+            .map_or(Some(&self.transition), |cond| {
+                cond.check(detail).then_some(&self.transition)
+            })
     }
 }
 
@@ -191,21 +196,33 @@ impl Workflow {
     }
 }
 
-fn do_accepted_range_size(workflows: &HashMap<String, Workflow>, current: &Workflow, range: DetailRange) -> usize {
+fn do_accepted_range_size(
+    workflows: &HashMap<String, Workflow>,
+    current: &Workflow,
+    range: DetailRange,
+) -> usize {
     let mut total = 0;
     for (next_range, transition) in current.all_transitions(range) {
         match transition {
             Transition::Accept => total += next_range.size(),
             Transition::Reject => {}
             Transition::Next(next) => {
-                total += do_accepted_range_size(workflows, workflows.get(next).expect("All workflows should be defined"), next_range);
+                total += do_accepted_range_size(
+                    workflows,
+                    workflows
+                        .get(next)
+                        .expect("All workflows should be defined"),
+                    next_range,
+                );
             }
         }
     }
     total
 }
 
-pub fn find_ratings(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn find_ratings(
+    mut lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut workflows: HashMap<String, Workflow> = HashMap::new();
 
     for line in lines.by_ref().take_while(|s| !s.is_empty()) {
@@ -270,12 +287,16 @@ pub fn find_ratings(mut lines: impl Iterator<Item = String>) -> util::GenericRes
 
     let mut accepted_sum = 0;
     for detail in details {
-        let mut current_workflow = workflows.get("in").expect("All workflows should be defined");
+        let mut current_workflow = workflows
+            .get("in")
+            .expect("All workflows should be defined");
 
         loop {
             match current_workflow.get_transition(&detail) {
                 Transition::Next(next) => {
-                    current_workflow = workflows.get(next).expect("All workflows should be defined");
+                    current_workflow = workflows
+                        .get(next)
+                        .expect("All workflows should be defined");
                 }
                 Transition::Accept => {
                     accepted_sum += detail.total_rank();
@@ -288,7 +309,9 @@ pub fn find_ratings(mut lines: impl Iterator<Item = String>) -> util::GenericRes
 
     let total_size = do_accepted_range_size(
         &workflows,
-        workflows.get("in").expect("All workflows should be defined"),
+        workflows
+            .get("in")
+            .expect("All workflows should be defined"),
         DetailRange::new(),
     );
 

@@ -36,10 +36,22 @@ impl Field {
 
         for mut wind in self.winds.drain(..) {
             match wind.direction {
-                Direction::Up => wind.coord.row = if wind.coord.row > 1 { wind.coord.row - 1 } else { self.height - 2 },
-                Direction::Down => wind.coord.row = if wind.coord.row < self.height - 2 { wind.coord.row + 1 } else { 1 },
-                Direction::Left => wind.coord.col = if wind.coord.col > 1 { wind.coord.col - 1 } else { self.width - 2 },
-                Direction::Right => wind.coord.col = if wind.coord.col < self.width - 2 { wind.coord.col + 1 } else { 1 },
+                Direction::Up => {
+                    wind.coord.row =
+                        if wind.coord.row > 1 { wind.coord.row - 1 } else { self.height - 2 }
+                }
+                Direction::Down => {
+                    wind.coord.row =
+                        if wind.coord.row < self.height - 2 { wind.coord.row + 1 } else { 1 }
+                }
+                Direction::Left => {
+                    wind.coord.col =
+                        if wind.coord.col > 1 { wind.coord.col - 1 } else { self.width - 2 }
+                }
+                Direction::Right => {
+                    wind.coord.col =
+                        if wind.coord.col < self.width - 2 { wind.coord.col + 1 } else { 1 }
+                }
             }
 
             new_winds.push(wind);
@@ -66,7 +78,12 @@ fn generate_states(field: &Field, states: HashSet<Coord>) -> HashSet<Coord> {
             if col < field.width - 2 { Some(Coord { row, col: col + 1 }) } else { None },  // right
         ];
 
-        new_states.extend(possible_moves.into_iter().flatten().filter(|&m| field.can_move_into(m)));
+        new_states.extend(
+            possible_moves
+                .into_iter()
+                .flatten()
+                .filter(|&m| field.can_move_into(m)),
+        );
     }
 
     new_states
@@ -100,12 +117,17 @@ fn rounds_to_reach(field: &mut Field, start: Coord, end: Coord) -> usize {
 
 #[allow(dead_code)]
 fn print_states(states: &HashSet<Coord>) {
-    let mut formatted = states.iter().map(|c| format!("[{},{}]", c.row, c.col)).collect::<Vec<_>>();
+    let mut formatted = states
+        .iter()
+        .map(|c| format!("[{},{}]", c.row, c.col))
+        .collect::<Vec<_>>();
     formatted.sort();
     println!("[{}]", formatted.join(", "));
 }
 
-pub fn count_path_minutes(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn count_path_minutes(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut height = 0;
     let mut width = 0;
 

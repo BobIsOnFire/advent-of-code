@@ -75,12 +75,17 @@ fn check_safe_dampened(numbers: &[u64]) -> bool {
     false
 }
 
-pub fn count_safe_systems(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn count_safe_systems(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut safe_counter_strict = 0;
     let mut safe_counter_dampened = 0;
 
     for line in lines {
-        let numbers = line.split_ascii_whitespace().map(str::parse).collect::<Result<Vec<u64>, _>>()?;
+        let numbers = line
+            .split_ascii_whitespace()
+            .map(str::parse)
+            .collect::<Result<Vec<u64>, _>>()?;
 
         if check_safe_strict(&numbers) {
             safe_counter_strict += 1;
@@ -89,5 +94,8 @@ pub fn count_safe_systems(lines: impl Iterator<Item = String>) -> util::GenericR
         }
     }
 
-    Ok((safe_counter_strict, safe_counter_strict + safe_counter_dampened))
+    Ok((
+        safe_counter_strict,
+        safe_counter_strict + safe_counter_dampened,
+    ))
 }

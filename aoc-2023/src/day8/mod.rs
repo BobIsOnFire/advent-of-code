@@ -115,11 +115,17 @@ pub fn count_steps(mut lines: impl Iterator<Item = String>) -> util::GenericResu
     for line in lines {
         let mut lexer = util::Lexer::of(&line);
 
-        let name = lexer.take_while(|ch| ch.is_ascii_alphanumeric())?.to_owned();
+        let name = lexer
+            .take_while(|ch| ch.is_ascii_alphanumeric())?
+            .to_owned();
         lexer.literal(" = (")?;
-        let left = lexer.take_while(|ch| ch.is_ascii_alphanumeric())?.to_owned();
+        let left = lexer
+            .take_while(|ch| ch.is_ascii_alphanumeric())?
+            .to_owned();
         lexer.literal(", ")?;
-        let right = lexer.take_while(|ch| ch.is_ascii_alphanumeric())?.to_owned();
+        let right = lexer
+            .take_while(|ch| ch.is_ascii_alphanumeric())?
+            .to_owned();
         lexer.literal(")")?;
         lexer.end()?;
 
@@ -160,7 +166,11 @@ pub fn count_steps(mut lines: impl Iterator<Item = String>) -> util::GenericResu
         })
         .collect();
 
-    let steps_count = get_node_period(map.get_id_by_name("AAA").expect("Node AAA was not added into the map"), &move_mapping);
+    let steps_count = get_node_period(
+        map.get_id_by_name("AAA")
+            .expect("Node AAA was not added into the map"),
+        &move_mapping,
+    );
 
     let all_steps_count = map
         .name_to_node
@@ -169,5 +179,8 @@ pub fn count_steps(mut lines: impl Iterator<Item = String>) -> util::GenericResu
         .map(|node| get_node_period(node, &move_mapping))
         .fold(1, get_lcm);
 
-    Ok((steps_count * directions.len(), all_steps_count * directions.len()))
+    Ok((
+        steps_count * directions.len(),
+        all_steps_count * directions.len(),
+    ))
 }

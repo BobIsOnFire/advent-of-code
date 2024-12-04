@@ -23,7 +23,8 @@ pub fn decrypt_table(lines: impl Iterator<Item = String>) -> util::GenericResult
                 // current number should be located before and after the move
                 let static_count = numbers.len() - 1;
                 let current_static = (pos as i64 - 1).rem_euclid(static_count as i64) as usize;
-                let new_static = (current_static as i64 + number).rem_euclid(static_count as i64) as usize;
+                let new_static =
+                    (current_static as i64 + number).rem_euclid(static_count as i64) as usize;
                 // +1 to determine actual position of the new element
                 new_static + 1
             };
@@ -57,9 +58,14 @@ pub fn decrypt_table(lines: impl Iterator<Item = String>) -> util::GenericResult
         }
     }
 
-    let zero_pos = numbers.iter().position(|num| *num == 0).expect("There should be exactly one element 0");
+    let zero_pos = numbers
+        .iter()
+        .position(|num| *num == 0)
+        .expect("There should be exactly one element 0");
 
-    let sum = numbers[(zero_pos + 1000) % numbers.len()] + numbers[(zero_pos + 2000) % numbers.len()] + numbers[(zero_pos + 3000) % numbers.len()];
+    let sum = numbers[(zero_pos + 1000) % numbers.len()]
+        + numbers[(zero_pos + 2000) % numbers.len()]
+        + numbers[(zero_pos + 3000) % numbers.len()];
 
     Ok((0, sum))
 }

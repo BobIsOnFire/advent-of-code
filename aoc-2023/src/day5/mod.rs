@@ -32,7 +32,10 @@ impl Range {
     }
 
     fn intersects(&self, other: &Self) -> bool {
-        self.contains(other.start()) || self.contains(other.end()) || other.contains(self.start()) || other.contains(self.end())
+        self.contains(other.start())
+            || self.contains(other.end())
+            || other.contains(self.start())
+            || other.contains(self.end())
     }
 
     const fn is_followed_by(&self, other: &Self) -> bool {
@@ -164,7 +167,9 @@ fn parse_seeds(line: &str) -> util::lexer::Result<(Vec<usize>, IntegerSet)> {
     Ok((values, ranges))
 }
 
-pub fn find_locations(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn find_locations(
+    mut lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let (mut values, mut ranges) = parse_seeds(&lines.next().expect("Seed line is expected"))?;
 
     let _ = lines.next().expect("Input ended too soon");
@@ -232,7 +237,10 @@ pub fn find_locations(mut lines: impl Iterator<Item = String>) -> util::GenericR
         }
     }
 
-    let min_location = values.into_iter().min().expect("There should be at least one location");
+    let min_location = values
+        .into_iter()
+        .min()
+        .expect("There should be at least one location");
     let min_range = ranges
         .iter_ranges()
         .map(Range::start)

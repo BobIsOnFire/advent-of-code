@@ -52,7 +52,12 @@ fn check_stable(brick: &Brick, coord_to_idx: &HashMap<Coord, usize>) -> bool {
     false
 }
 
-fn do_count_falling_bricks(supports: &[HashSet<usize>], supported_by: &[HashSet<usize>], current: usize, falling: &mut HashSet<usize>) {
+fn do_count_falling_bricks(
+    supports: &[HashSet<usize>],
+    supported_by: &[HashSet<usize>],
+    current: usize,
+    falling: &mut HashSet<usize>,
+) {
     if supported_by[current].is_subset(falling) {
         falling.insert(current);
         for next in &supports[current] {
@@ -61,7 +66,11 @@ fn do_count_falling_bricks(supports: &[HashSet<usize>], supported_by: &[HashSet<
     }
 }
 
-fn count_falling_bricks(supports: &[HashSet<usize>], supported_by: &[HashSet<usize>], start: usize) -> usize {
+fn count_falling_bricks(
+    supports: &[HashSet<usize>],
+    supported_by: &[HashSet<usize>],
+    start: usize,
+) -> usize {
     let mut falling = HashSet::from([start]);
     for next in &supports[start] {
         do_count_falling_bricks(supports, supported_by, *next, &mut falling);

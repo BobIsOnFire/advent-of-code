@@ -14,7 +14,9 @@ fn parse_food_line(s: &str) -> lexer::Result<Option<usize>> {
     Ok(Some(num))
 }
 
-pub fn get_n_highest<const N: usize>(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn get_n_highest<const N: usize>(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut elf_sums = Vec::new();
     let mut food_lines = lines.map(|s| parse_food_line(&s)).end_on_error();
 
@@ -32,7 +34,9 @@ pub fn get_n_highest<const N: usize>(lines: impl Iterator<Item = String>) -> uti
     assert!(N < len, "N is too big");
 
     let (_, _, highest) = elf_sums.select_nth_unstable(len - N - 1);
-    let mut highest: [usize; N] = highest.try_into().expect("This should be guaranteed by select algo");
+    let mut highest: [usize; N] = highest
+        .try_into()
+        .expect("This should be guaranteed by select algo");
 
     highest.sort_unstable();
     Ok((highest[N - 1], highest.iter().sum()))

@@ -43,7 +43,12 @@ fn walk_paths(mat: &mut VecMatrix<Tile>) -> util::GenericResult<()> {
 
     loop {
         for &idx in &current {
-            let neighbours = [mat.next_up(idx), mat.next_left(idx), mat.next_down(idx), mat.next_right(idx)];
+            let neighbours = [
+                mat.next_up(idx),
+                mat.next_left(idx),
+                mat.next_down(idx),
+                mat.next_right(idx),
+            ];
 
             for neigh in neighbours.into_iter().flatten() {
                 if !mat[neigh].visited && mat[idx].can_cross(&mat[neigh]) {
@@ -65,10 +70,16 @@ fn walk_paths(mat: &mut VecMatrix<Tile>) -> util::GenericResult<()> {
     Ok(())
 }
 
-pub fn find_shortest_distance(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn find_shortest_distance(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut lines = lines.peekable();
 
-    let width = lines.peek().ok_or("At least one line expected")?.as_bytes().len();
+    let width = lines
+        .peek()
+        .ok_or("At least one line expected")?
+        .as_bytes()
+        .len();
 
     let mut mat = VecMatrix::new(width);
     lines.for_each(|line| mat.extend(line.chars().map(Tile::of)));

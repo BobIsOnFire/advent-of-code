@@ -86,14 +86,24 @@ impl Piece {
     fn plus_sign() -> Self {
         use Tile::{Empty, Filled};
         Self {
-            data: create_bitmap([[Empty, Filled, Empty], [Filled, Filled, Filled], [Empty, Filled, Empty]]).into(),
+            data: create_bitmap([
+                [Empty, Filled, Empty],
+                [Filled, Filled, Filled],
+                [Empty, Filled, Empty],
+            ])
+            .into(),
         }
     }
 
     fn angle() -> Self {
         use Tile::{Empty, Filled};
         Self {
-            data: create_bitmap([[Filled, Filled, Filled], [Filled, Empty, Empty], [Filled, Empty, Empty]]).into(),
+            data: create_bitmap([
+                [Filled, Filled, Filled],
+                [Filled, Empty, Empty],
+                [Filled, Empty, Empty],
+            ])
+            .into(),
         }
     }
 
@@ -178,8 +188,12 @@ impl Chamber {
     }
 }
 
-pub fn tetris_simulator(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
-    let line = lines.next().expect("A line with move data should be provided");
+pub fn tetris_simulator(
+    mut lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
+    let line = lines
+        .next()
+        .expect("A line with move data should be provided");
 
     let mut side_moves = line
         .chars()

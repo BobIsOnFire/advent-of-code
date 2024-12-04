@@ -27,7 +27,11 @@ impl Direction {
     }
 }
 
-fn next_idx(matrix: &VecMatrix<char>, idx: MatrixIndex, direction: Direction) -> Option<MatrixIndex> {
+fn next_idx(
+    matrix: &VecMatrix<char>,
+    idx: MatrixIndex,
+    direction: Direction,
+) -> Option<MatrixIndex> {
     match direction {
         Direction::Up => matrix.next_up(idx),
         Direction::UpRight => matrix.next_up(idx).and_then(|i| matrix.next_right(i)),
@@ -89,8 +93,14 @@ fn check_mas_cross(matrix: &VecMatrix<char>, idx: MatrixIndex) -> bool {
         return false;
     }
 
-    let cross_directions = [Direction::UpRight, Direction::DownRight, Direction::DownLeft, Direction::UpLeft];
-    let Some(cross_indices) = array_transpose(cross_directions.map(|d| next_idx(matrix, idx, d))) else {
+    let cross_directions = [
+        Direction::UpRight,
+        Direction::DownRight,
+        Direction::DownLeft,
+        Direction::UpLeft,
+    ];
+    let Some(cross_indices) = array_transpose(cross_directions.map(|d| next_idx(matrix, idx, d)))
+    else {
         return false;
     };
 
@@ -117,8 +127,14 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
         VecMatrix::with_data(data, width)
     };
 
-    let total_xmas = matrix.iter_enumerate().map(|(idx, _)| count_xmas_words(&matrix, idx)).sum();
-    let total_crosses = matrix.iter_enumerate().filter(|(idx, _)| check_mas_cross(&matrix, *idx)).count();
+    let total_xmas = matrix
+        .iter_enumerate()
+        .map(|(idx, _)| count_xmas_words(&matrix, idx))
+        .sum();
+    let total_crosses = matrix
+        .iter_enumerate()
+        .filter(|(idx, _)| check_mas_cross(&matrix, *idx))
+        .count();
 
     Ok((total_xmas, total_crosses))
 }

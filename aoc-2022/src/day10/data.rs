@@ -53,7 +53,11 @@ impl Screen {
         // I am using already rendered screen as internal representation to save allocations:
         // `width` bytes + newline, repeat `height` times
         let render = (0..height)
-            .flat_map(|_| std::iter::repeat(PX_DIMMED).take(width).chain(std::iter::once('\n')))
+            .flat_map(|_| {
+                std::iter::repeat(PX_DIMMED)
+                    .take(width)
+                    .chain(std::iter::once('\n'))
+            })
             .collect();
 
         Self { render, width }
@@ -73,7 +77,9 @@ impl Screen {
 
         // SAFETY: Safe to write into underlying array because self.render
         // consists of either PX_DIMMED, PX_LIT or '\n', which are all ASCII
-        unsafe { self.render.as_bytes_mut() }.get_mut(idx).expect("Cycles overflowed!")
+        unsafe { self.render.as_bytes_mut() }
+            .get_mut(idx)
+            .expect("Cycles overflowed!")
     }
 }
 

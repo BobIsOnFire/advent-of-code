@@ -2,7 +2,11 @@ use std::collections::{HashMap, HashSet};
 
 use aoc_common::util;
 
-fn do_count_connected(graph: &HashMap<String, HashSet<String>>, current: &str, visited: &mut HashSet<String>) -> usize {
+fn do_count_connected(
+    graph: &HashMap<String, HashSet<String>>,
+    current: &str,
+    visited: &mut HashSet<String>,
+) -> usize {
     if visited.contains(current) {
         return 0;
     }
@@ -23,7 +27,9 @@ fn count_connected_nodes(graph: &HashMap<String, HashSet<String>>, node: &str) -
     do_count_connected(graph, node, &mut visited)
 }
 
-pub fn disconnect_nodes(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn disconnect_nodes(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut graph: HashMap<String, HashSet<String>> = HashMap::new();
 
     for line in lines {
@@ -35,8 +41,14 @@ pub fn disconnect_nodes(lines: impl Iterator<Item = String>) -> util::GenericRes
             let right = lexer.take_while(|ch| ch.is_ascii_alphabetic())?;
 
             // println!("    {} -- {}", left, right);
-            graph.entry(left.to_string()).or_default().insert(right.to_string());
-            graph.entry(right.to_string()).or_default().insert(left.to_string());
+            graph
+                .entry(left.to_string())
+                .or_default()
+                .insert(right.to_string());
+            graph
+                .entry(right.to_string())
+                .or_default()
+                .insert(left.to_string());
         }
     }
 

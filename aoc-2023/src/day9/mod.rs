@@ -18,7 +18,9 @@ fn get_sequence_element(values: &[i64], at: i64) -> i64 {
     element
 }
 
-pub fn extrapolate_sequence(lines: impl Iterator<Item = String>) -> util::GenericResult<(i64, i64)> {
+pub fn extrapolate_sequence(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(i64, i64)> {
     let mut next_values_sum = 0;
     let mut prev_values_sum = 0;
 

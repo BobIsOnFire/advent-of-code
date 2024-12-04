@@ -24,7 +24,9 @@ fn get_all_multiplies(line: &str) -> u64 {
     result
 }
 
-pub fn parse_corrupted_data(lines: impl Iterator<Item = String>) -> util::GenericResult<(u64, u64)> {
+pub fn parse_corrupted_data(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(u64, u64)> {
     let input = lines.collect::<String>();
 
     // Lexer that just considers "mul" commands
@@ -34,7 +36,10 @@ pub fn parse_corrupted_data(lines: impl Iterator<Item = String>) -> util::Generi
     let mut result_with_conditions = 0;
     let mut lexer = util::Lexer::of(&input);
 
-    while let Ok(block) = lexer.before_literal("don't()").or_else(|_| lexer.take_rest()) {
+    while let Ok(block) = lexer
+        .before_literal("don't()")
+        .or_else(|_| lexer.take_rest())
+    {
         result_with_conditions += get_all_multiplies(block);
         // Skip everything until next "do", exit loop if it does not exist
         if lexer.before_literal("do()").is_err() {

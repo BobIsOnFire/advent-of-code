@@ -52,7 +52,10 @@ impl<const N: usize> Rope<N> {
                 Coords(0, 1)
             };
 
-            let change = Coords(change_abs.0 * diff.0.signum(), change_abs.1 * diff.1.signum());
+            let change = Coords(
+                change_abs.0 * diff.0.signum(),
+                change_abs.1 * diff.1.signum(),
+            );
 
             self.knots[ind] = self.knots[ind] + change;
         }
@@ -71,7 +74,9 @@ impl<const N: usize> Rope<N> {
     }
 }
 
-pub fn count_unique_positions(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn count_unique_positions(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut rope = Rope::<10>::new();
 
     let mut set_short = HashSet::new();

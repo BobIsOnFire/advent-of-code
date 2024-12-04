@@ -65,11 +65,13 @@ impl<T> VecMatrix<T> {
 
     #[must_use]
     pub fn get(&self, idx: MatrixIndex) -> Option<&T> {
-        self.get_flat_idx(idx).and_then(|data_idx| self.data.get(data_idx))
+        self.get_flat_idx(idx)
+            .and_then(|data_idx| self.data.get(data_idx))
     }
 
     pub fn get_mut(&mut self, idx: MatrixIndex) -> Option<&mut T> {
-        self.get_flat_idx(idx).and_then(|data_idx| self.data.get_mut(data_idx))
+        self.get_flat_idx(idx)
+            .and_then(|data_idx| self.data.get_mut(data_idx))
     }
 
     #[must_use]
@@ -119,12 +121,16 @@ impl<T> VecMatrix<T> {
 
     pub fn iter_enumerate(&self) -> impl Iterator<Item = (MatrixIndex, &T)> {
         let width = self.width;
-        self.iter().enumerate().map(move |(idx, item)| (get_matrix_idx(idx, width), item))
+        self.iter()
+            .enumerate()
+            .map(move |(idx, item)| (get_matrix_idx(idx, width), item))
     }
 
     pub fn iter_enumerate_mut(&mut self) -> impl Iterator<Item = (MatrixIndex, &mut T)> {
         let width = self.width;
-        self.iter_mut().enumerate().map(move |(idx, item)| (get_matrix_idx(idx, width), item))
+        self.iter_mut()
+            .enumerate()
+            .map(move |(idx, item)| (get_matrix_idx(idx, width), item))
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &T> {

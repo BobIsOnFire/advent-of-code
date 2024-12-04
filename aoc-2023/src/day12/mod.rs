@@ -83,7 +83,9 @@ fn advance(spring: Spring, current_states: Vec<usize>, state_chain: &[State]) ->
     new_states
 }
 
-pub fn count_possible_states(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn count_possible_states(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut count_sum = 0;
 
     for line in lines {

@@ -40,11 +40,13 @@ impl StoneLine {
         if from_row == to_row {
             // Horizontal line
             let (from_col, to_col) = (usize::min(from_col, to_col), usize::max(from_col, to_col));
-            (from_col..=to_col).map(Box::new(move |col| Coord { row: to_row, col }) as Box<dyn Fn(usize) -> Coord>)
+            (from_col..=to_col)
+                .map(Box::new(move |col| Coord { row: to_row, col }) as Box<dyn Fn(usize) -> Coord>)
         } else {
             // Vertical line
             let (from_row, to_row) = (usize::min(from_row, to_row), usize::max(from_row, to_row));
-            (from_row..=to_row).map(Box::new(move |row| Coord { row, col: to_col }) as Box<dyn Fn(usize) -> Coord>)
+            (from_row..=to_row)
+                .map(Box::new(move |row| Coord { row, col: to_col }) as Box<dyn Fn(usize) -> Coord>)
         }
     }
 }
@@ -55,7 +57,11 @@ struct Cave {
 
 impl Cave {
     fn new(lines: &[StoneLine]) -> Self {
-        let max_row = lines.iter().flat_map(|line| [line.from.row, line.to.row]).max().unwrap();
+        let max_row = lines
+            .iter()
+            .flat_map(|line| [line.from.row, line.to.row])
+            .max()
+            .unwrap();
 
         let width = 1000;
         let height = max_row + FLOOR_OFFSET;
@@ -132,7 +138,9 @@ fn parse_coords(lexer: &mut util::Lexer<'_>) -> util::lexer::Result<Coord> {
     Ok(Coord { row, col })
 }
 
-pub fn count_stable_units(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn count_stable_units(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut stone_lines: Vec<StoneLine> = vec![];
 
     for line in lines {

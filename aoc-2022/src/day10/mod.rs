@@ -27,7 +27,9 @@ fn parse_command(s: &str) -> lexer::Result<Command> {
     Ok(Command::Add(num))
 }
 
-pub fn get_signal_strengths(lines: impl Iterator<Item = String>) -> util::GenericResult<(i64, String)> {
+pub fn get_signal_strengths(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(i64, String)> {
     let mut system = VideoSystem::new(40, 6, 20);
 
     for line in lines {
@@ -37,5 +39,8 @@ pub fn get_signal_strengths(lines: impl Iterator<Item = String>) -> util::Generi
         }
     }
 
-    Ok((system.get_total_signal_strength(), system.into_screen_render()))
+    Ok((
+        system.get_total_signal_strength(),
+        system.into_screen_render(),
+    ))
 }

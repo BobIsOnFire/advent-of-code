@@ -23,15 +23,17 @@ fn count_winning_ways(total_time: u64, distance_to_beat: u64) -> u64 {
         return 0;
     }
 
-    let first_winning_time = util::bisect(0, total_time / 2, |&time| get_distance(time, total_time) > distance_to_beat);
+    let first_winning_time = util::bisect(0, total_time / 2, |&time| {
+        get_distance(time, total_time) > distance_to_beat
+    });
 
     total_time - 2 * first_winning_time + 1
 }
 
 fn merge_decimal(numbers: &[u64]) -> u64 {
-    numbers
-        .iter()
-        .fold(0, |acc, &num| acc * 10u64.pow(num.checked_ilog10().unwrap_or(0) + 1) + num)
+    numbers.iter().fold(0, |acc, &num| {
+        acc * 10u64.pow(num.checked_ilog10().unwrap_or(0) + 1) + num
+    })
 }
 
 pub fn get_answer(mut lines: impl Iterator<Item = String>) -> util::GenericResult<(u64, u64)> {
