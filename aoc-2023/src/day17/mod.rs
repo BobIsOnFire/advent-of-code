@@ -209,10 +209,10 @@ impl FlowMap {
 
                     match to_node.orientation {
                         Orientation::Horizontal => {
-                            self.min_paths_horizontal[to_node.coord] = to_node.min_path
+                            self.min_paths_horizontal[to_node.coord] = to_node.min_path;
                         }
                         Orientation::Vertical => {
-                            self.min_paths_vertical[to_node.coord] = to_node.min_path
+                            self.min_paths_vertical[to_node.coord] = to_node.min_path;
                         }
                     }
                     self.nodes.insert(to_node);

@@ -140,7 +140,7 @@ impl<'a> BeamMap<'a> {
                     use Splitter::{Horizontal, Vertical};
                     match (beam.direction, splitter) {
                         (Left | Right, Horizontal) | (Up | Down, Vertical) => {
-                            self.add_next_beam(beam, beam.direction)
+                            self.add_next_beam(beam, beam.direction);
                         }
                         (Left | Right, Vertical) => {
                             self.add_next_beam(beam, Up);
