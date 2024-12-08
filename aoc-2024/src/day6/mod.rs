@@ -106,8 +106,8 @@ pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(u
 
         let width = lines.by_ref().peek().map_or(0, String::len);
         let data = lines
-            .collect::<String>()
-            .chars()
+            .flat_map(String::into_bytes)
+            .map(|byte| byte as char)
             .map(TryInto::try_into)
             .collect::<Result<Vec<_>, _>>()?;
 
