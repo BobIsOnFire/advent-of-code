@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use aoc_common::util::{self, MatrixIndex, VecMatrix};
 
@@ -49,36 +49,50 @@ enum Direction {
     West,
 }
 
-impl Direction {
-    const fn right(self) -> Self {
-        match self {
-            Self::North => Self::East,
-            Self::East => Self::South,
-            Self::South => Self::West,
-            Self::West => Self::North,
-        }
-    }
-
-    const fn left(self) -> Self {
-        match self {
-            Self::North => Self::West,
-            Self::East => Self::North,
-            Self::South => Self::East,
-            Self::West => Self::South,
-        }
-    }
-}
-
-fn next_idx(
-    tilemap: &VecMatrix<Tile>,
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+struct Point {
     idx: MatrixIndex,
     direction: Direction,
-) -> Option<MatrixIndex> {
-    match direction {
-        Direction::North => tilemap.next_up(idx),
-        Direction::East => tilemap.next_right(idx),
-        Direction::South => tilemap.next_down(idx),
-        Direction::West => tilemap.next_left(idx),
+}
+
+impl Point {
+    fn try_forward(&self, tilemap: &VecMatrix<Tile>) -> Option<Self> {
+        let next_idx = match self.direction {
+            Direction::North => tilemap.next_up(self.idx),
+            Direction::East => tilemap.next_right(self.idx),
+            Direction::South => tilemap.next_down(self.idx),
+            Direction::West => tilemap.next_left(self.idx),
+        };
+
+        next_idx.map(|idx| Self { idx, direction: self.direction })
+    }
+
+    const fn left(&self) -> Self {
+        let next_direction = match self.direction {
+            Direction::North => Direction::West,
+            Direction::East => Direction::North,
+            Direction::South => Direction::East,
+            Direction::West => Direction::South,
+        };
+
+        Self {
+            idx: self.idx,
+            direction: next_direction,
+        }
+    }
+
+    const fn right(&self) -> Self {
+        let next_direction = match self.direction {
+            Direction::North => Direction::East,
+            Direction::East => Direction::South,
+            Direction::South => Direction::West,
+            Direction::West => Direction::North,
+        };
+
+        Self {
+            idx: self.idx,
+            direction: next_direction,
+        }
     }
 }
 
@@ -87,90 +101,87 @@ fn find_fastest_path(
     start: MatrixIndex,
     end: MatrixIndex,
 ) -> (usize, usize) {
-    let mut visited = VecMatrix::with_data(vec![false; tilemap.len()], tilemap.width());
-    let mut lowest_cost = VecMatrix::with_data(vec![usize::MAX; tilemap.len()], tilemap.width());
-    let mut entry_from = VecMatrix::with_data(vec![vec![]; tilemap.len()], tilemap.width());
+    let mut visited: HashSet<Point> = HashSet::new();
+    let mut lowest_cost: HashMap<MatrixIndex, usize> = HashMap::new();
+    let mut entry_from: HashMap<Point, Vec<Point>> = HashMap::new();
 
-    let mut to_visit: BTreeMap<usize, Vec<(MatrixIndex, Direction)>> = BTreeMap::new();
-    to_visit.insert(0, vec![(start, Direction::East)]);
+    let start = Point {
+        idx: start,
+        direction: Direction::East,
+    };
+
+    let mut to_visit: BTreeMap<usize, Vec<(Point, Point)>> = BTreeMap::new();
+    to_visit.insert(0, vec![(start.clone(), start)]);
 
     while let Some((cost, nodes)) = to_visit.pop_first() {
-        if lowest_cost[end] < cost {
+        if lowest_cost.get(&end).is_some_and(|&v| cost > v) {
             break;
         }
 
-        println!("{cost} : {nodes:?}");
-        for (idx, direction) in nodes {
-            if lowest_cost[idx] > cost {
-                lowest_cost[idx] = cost;
-            }
-            if tilemap[idx] != Tile::Start {
-                entry_from[idx].push(next_idx(tilemap, idx, direction.right().right()).unwrap());
+        for (from, to) in &nodes {
+            if visited.contains(to) {
+                continue;
             }
 
-            // if visited[idx] {
-            //     continue;
-            // }
-            visited[idx] = true;
+            lowest_cost.entry(to.idx).or_insert(cost);
+            entry_from.entry(to.clone()).or_default().push(from.clone());
 
-            if let Some(next) = next_idx(tilemap, idx, direction) {
-                if tilemap[next] != Tile::Wall && !visited[next] {
+            if let Some(next) = to.try_forward(tilemap) {
+                if tilemap[next.idx] != Tile::Wall && !visited.contains(&next) {
                     to_visit
                         .entry(cost + 1)
                         .or_default()
-                        .push((next, direction));
+                        .push((to.clone(), next));
                 }
             }
-            if let Some(next) = next_idx(tilemap, idx, direction.right()) {
-                if tilemap[next] != Tile::Wall && !visited[next] {
-                    to_visit
-                        .entry(cost + 1001)
-                        .or_default()
-                        .push((next, direction.right()));
-                }
+            let right = to.right();
+            if !visited.contains(&right) {
+                to_visit
+                    .entry(cost + 1000)
+                    .or_default()
+                    .push((to.clone(), right));
             }
-            if let Some(next) = next_idx(tilemap, idx, direction.left()) {
-                if tilemap[next] != Tile::Wall && !visited[next] {
-                    to_visit
-                        .entry(cost + 1001)
-                        .or_default()
-                        .push((next, direction.left()));
-                }
+            let left = to.left();
+            if !visited.contains(&left) {
+                to_visit
+                    .entry(cost + 1000)
+                    .or_default()
+                    .push((to.clone(), left));
             }
+        }
+
+        for (_, to) in nodes {
+            visited.insert(to);
         }
     }
 
     let mut best_tiles = HashSet::new();
-    let mut to_add = vec![end];
+    let mut visited = HashSet::new();
+    let mut to_add = vec![
+        Point {
+            idx: end,
+            direction: Direction::North,
+        },
+        Point { idx: end, direction: Direction::East },
+        Point {
+            idx: end,
+            direction: Direction::South,
+        },
+        Point { idx: end, direction: Direction::West },
+    ];
 
-    while let Some(idx) = to_add.pop() {
-        best_tiles.insert(idx);
-        for &entry in &entry_from[idx] {
-            if best_tiles.contains(&entry) {
+    while let Some(point) = to_add.pop() {
+        for entry in entry_from.get(&point).unwrap_or(&vec![]) {
+            if visited.contains(entry) {
                 continue;
             }
-            to_add.push(entry);
+            to_add.push(entry.clone());
         }
+        best_tiles.insert(point.idx);
+        visited.insert(point);
     }
 
-    for (idx, &tile) in tilemap.iter_enumerate() {
-        if best_tiles.contains(&idx) {
-            print!("O");
-        } else {
-            match tile {
-                Tile::Empty => print!("."),
-                Tile::Wall => print!("#"),
-                Tile::Start => print!("S"),
-                Tile::End => print!("E"),
-            }
-        }
-
-        if idx.col == tilemap.width() - 1 {
-            println!();
-        }
-    }
-
-    (lowest_cost[end], best_tiles.len())
+    (*lowest_cost.get(&end).unwrap(), best_tiles.len())
 }
 
 pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
