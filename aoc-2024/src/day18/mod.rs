@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, usize};
+use std::collections::BTreeMap;
 
 use aoc_common::util::{self, MatrixIndex, VecMatrix};
 
