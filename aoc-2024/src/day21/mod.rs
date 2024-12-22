@@ -1,251 +1,161 @@
+use std::collections::HashMap;
+
 use aoc_common::util;
+use model::{DirectionButton, KeypadButton, KeypadPosition, NumericButton};
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum NumericButton {
-    Number(u8),
-    Confirm,
+mod model;
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub struct Movement<T: KeypadButton> {
+    from: T,
+    to: T,
 }
 
-impl NumericButton {
-    /*
-    +---+---+---+
-    | 7 | 8 | 9 |
-    +---+---+---+
-    | 4 | 5 | 6 |
-    +---+---+---+
-    | 1 | 2 | 3 |
-    +---+---+---+
-        | 0 | A |
-        +---+---+
-    */
-
-    const fn row(self) -> u8 {
-        match self {
-            Self::Number(num) => 3 - (num + 2) / 3,
-            Self::Confirm => 3,
-        }
+impl<T: KeypadButton> Movement<T> {
+    pub const fn new(from: T, to: T) -> Self {
+        Self { from, to }
     }
 
-    const fn col(self) -> u8 {
-        match self {
-            Self::Number(0) => 1,
-            Self::Number(num) => (num - 1) % 3,
-            Self::Confirm => 2,
+    pub fn into_higher_level_presses(self, row_first: bool) -> Option<Vec<DirectionButton>> {
+        use DirectionButton::{Confirm, Down, Left, Right, Up};
+
+        let from_pos: KeypadPosition = self.from.into();
+        let to_pos: KeypadPosition = self.to.into();
+
+        let iter_row = std::iter::repeat_n(
+            if to_pos.row > from_pos.row { Down } else { Up },
+            usize::abs_diff(to_pos.row, from_pos.row),
+        );
+
+        let iter_col = std::iter::repeat_n(
+            if to_pos.col > from_pos.col { Right } else { Left },
+            usize::abs_diff(to_pos.col, from_pos.col),
+        );
+
+        let presses = if row_first { iter_row.chain(iter_col) } else { iter_col.chain(iter_row) }
+            .chain(std::iter::once(Confirm))
+            .collect();
+
+        let mut current: T = from_pos.try_into().ok()?;
+        for &press in &presses {
+            let pos: KeypadPosition = current.into();
+            let next_pos = match press {
+                Left if pos.col == 0 => return None,
+                Up if pos.row == 0 => return None,
+                Confirm => pos,
+                Left => KeypadPosition { row: pos.row, col: pos.col - 1 },
+                Right => KeypadPosition { row: pos.row, col: pos.col + 1 },
+                Up => KeypadPosition { row: pos.row - 1, col: pos.col },
+                Down => KeypadPosition { row: pos.row + 1, col: pos.col },
+            };
+
+            current = next_pos.try_into().ok()?;
         }
-    }
-}
+        assert!(current.into() == to_pos);
 
-impl TryFrom<char> for NumericButton {
-    type Error = String;
-
-    fn try_from(value: char) -> Result<Self, Self::Error> {
-        match value {
-            '0'..='9' => Ok(Self::Number(value as u8 - b'0')),
-            'A' => Ok(Self::Confirm),
-            _ => Err(format!("Invalid numeric button: {value}")),
-        }
-    }
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum DirectionButton {
-    Left,
-    Right,
-    Up,
-    Down,
-    Confirm,
-}
-
-impl DirectionButton {
-    /*
-        +---+---+
-        | ^ | A |
-    +---+---+---+
-    | < | v | > |
-    +---+---+---+
-    */
-
-    const fn row(self) -> u8 {
-        match self {
-            Self::Up | Self::Confirm => 0,
-            _ => 1,
-        }
-    }
-
-    const fn col(self) -> u8 {
-        match self {
-            Self::Left => 0,
-            Self::Up | Self::Down => 1,
-            _ => 2,
-        }
+        Some(presses)
     }
 }
 
-struct Distance {
-    vertical: i8,   // positive => down, negative => up
-    horizontal: i8, // positive => right, negative => left
+struct KeypadSetCache {
+    best_weights: Vec<HashMap<Movement<DirectionButton>, usize>>,
 }
 
-impl Distance {
-    const fn between_numeric(from: NumericButton, to: NumericButton) -> Self {
+impl KeypadSetCache {
+    fn new(levels: usize) -> Self {
         Self {
-            vertical: to.row() as i8 - from.row() as i8,
-            horizontal: to.col() as i8 - from.col() as i8,
+            best_weights: vec![HashMap::new(); levels],
         }
     }
 
-    const fn between_directions(from: DirectionButton, to: DirectionButton) -> Self {
-        Self {
-            vertical: to.row() as i8 - from.row() as i8,
-            horizontal: to.col() as i8 - from.col() as i8,
+    fn get_movement_weight(&mut self, dirmove: Movement<DirectionButton>, level: usize) -> usize {
+        if let Some(best_weight) = self.best_weights[level].get(&dirmove) {
+            return *best_weight;
         }
-    }
-}
 
-struct NumericKeypad {
-    position: NumericButton,
-    moves: Vec<DirectionButton>,
-}
+        let best_weight = self.find_best_weight(dirmove, level + 1);
+        self.best_weights[level].insert(dirmove, best_weight);
 
-impl NumericKeypad {
-    const fn new() -> Self {
-        Self {
-            position: NumericButton::Confirm,
-            moves: vec![],
-        }
+        best_weight
     }
 
-    fn add_vertical_moves(&mut self, vertical: i8) {
-        if vertical > 0 {
-            for _ in 0..vertical {
-                self.moves.push(DirectionButton::Down);
-            }
+    fn get_presses_weight(&mut self, presses: &[DirectionButton], next_level: usize) -> usize {
+        if next_level == self.best_weights.len() {
+            presses.len()
         } else {
-            for _ in 0..(-vertical) {
-                self.moves.push(DirectionButton::Up);
+            let mut prev_press = DirectionButton::Confirm;
+            let mut weight = 0;
+
+            for &press in presses {
+                let next_move = Movement::new(prev_press, press);
+                weight += self.get_movement_weight(next_move, next_level);
+                prev_press = press;
+            }
+
+            weight
+        }
+    }
+
+    fn find_best_weight<T: KeypadButton + Copy + std::fmt::Debug>(
+        &mut self,
+        movement: Movement<T>,
+        next_level: usize,
+    ) -> usize {
+        let presses_vertical = movement.into_higher_level_presses(true);
+        let presses_horizontal = movement.into_higher_level_presses(false);
+
+        match (presses_vertical, presses_horizontal) {
+            (None, None) => panic!("Cannot perform {movement:?} for some reason"),
+            (None, Some(presses)) | (Some(presses), None) => {
+                self.get_presses_weight(&presses, next_level)
+            }
+            (Some(vertical), Some(horizontal)) => {
+                let weight_vertical = self.get_presses_weight(&vertical, next_level);
+                let weight_horizontal = self.get_presses_weight(&horizontal, next_level);
+
+                usize::min(weight_vertical, weight_horizontal)
             }
         }
     }
 
-    fn add_horizontal_moves(&mut self, horizontal: i8) {
-        if horizontal > 0 {
-            for _ in 0..horizontal {
-                self.moves.push(DirectionButton::Right);
-            }
-        } else {
-            for _ in 0..(-horizontal) {
-                self.moves.push(DirectionButton::Left);
-            }
-        }
-    }
+    fn get_numeric_weight(&mut self, numeric: &[NumericButton]) -> usize {
+        let mut weight_total = 0;
+        let mut prev_number = NumericButton::Confirm;
 
-    fn move_to(&mut self, position: NumericButton) {
-        let distance = Distance::between_numeric(self.position, position);
-
-        // let vertical_first = self.position.row() == 3 && position.col() == 0;
-        let horizontal_first = self.position.col() == 0 && position.row() == 3;
-
-        if !horizontal_first {
-            self.add_vertical_moves(distance.vertical);
-            self.add_horizontal_moves(distance.horizontal);
-        } else {
-            self.add_horizontal_moves(distance.horizontal);
-            self.add_vertical_moves(distance.vertical);
+        for &num in numeric {
+            weight_total += self.find_best_weight(Movement::new(prev_number, num), 0);
+            prev_number = num;
         }
 
-        self.moves.push(DirectionButton::Confirm);
-
-        self.position = position;
-    }
-}
-
-struct DirectionKeypad {
-    position: DirectionButton,
-    moves: Vec<DirectionButton>,
-}
-
-impl DirectionKeypad {
-    const fn new() -> Self {
-        Self {
-            position: DirectionButton::Confirm,
-            moves: vec![],
-        }
-    }
-
-    fn add_vertical_moves(&mut self, vertical: i8) {
-        if vertical > 0 {
-            for _ in 0..vertical {
-                self.moves.push(DirectionButton::Down);
-            }
-        } else {
-            for _ in 0..(-vertical) {
-                self.moves.push(DirectionButton::Up);
-            }
-        }
-    }
-
-    fn add_horizontal_moves(&mut self, horizontal: i8) {
-        if horizontal > 0 {
-            for _ in 0..horizontal {
-                self.moves.push(DirectionButton::Right);
-            }
-        } else {
-            for _ in 0..(-horizontal) {
-                self.moves.push(DirectionButton::Left);
-            }
-        }
-    }
-
-    fn move_to(&mut self, position: DirectionButton) {
-        let distance = Distance::between_directions(self.position, position);
-
-        // let horizontal_first = self.position.col() == 0;
-        let vertical_first = self.position.row() == 0;
-
-        if !vertical_first {
-            self.add_horizontal_moves(distance.horizontal);
-            self.add_vertical_moves(distance.vertical);
-        } else {
-            self.add_vertical_moves(distance.vertical);
-            self.add_horizontal_moves(distance.horizontal);
-        }
-
-        self.moves.push(DirectionButton::Confirm);
-
-        self.position = position;
+        weight_total
     }
 }
 
 pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
-    let mut complexity_total = 0;
+    let mut complexity_short = 0;
+    let mut complexity_long = 0;
+
+    let mut cache_short = KeypadSetCache::new(2);
+    let mut cache_long = KeypadSetCache::new(25);
 
     for line in lines {
         let mut value = 0;
-        let mut keypad = NumericKeypad::new();
+        let mut numeric = vec![];
+
         for ch in line.chars() {
             let button = ch.try_into()?;
             if let NumericButton::Number(num) = button {
                 value = value * 10 + num as usize;
             }
-            keypad.move_to(button);
+            numeric.push(button);
         }
 
-        let mut first_directions = DirectionKeypad::new();
-        for direction in keypad.moves {
-            first_directions.move_to(direction);
-        }
+        let weight_short = cache_short.get_numeric_weight(&numeric);
+        let weight_long = cache_long.get_numeric_weight(&numeric);
 
-        let mut second_directions = DirectionKeypad::new();
-        for direction in first_directions.moves {
-            second_directions.move_to(direction);
-        }
-
-        let move_len = second_directions.moves.len();
-
-        println!("{value} {move_len}");
-
-        complexity_total += value * move_len;
+        complexity_short += value * weight_short;
+        complexity_long += value * weight_long;
     }
 
-    Ok((complexity_total, 0))
+    Ok((complexity_short, complexity_long))
 }
