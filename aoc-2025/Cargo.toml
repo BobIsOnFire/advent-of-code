@@ -1,0 +1,11 @@
+[package]
+name = "aoc-2025"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aoc-common = { path = "../aoc-common" }
+
+[[bin]]
+name = "aoc-2025-day1"
+path = "bin/day1.rs"
