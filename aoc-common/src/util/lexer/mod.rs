@@ -37,7 +37,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn shift(&mut self, pos: usize) {
+    const fn shift(&mut self, pos: usize) {
         self.pos += pos;
     }
 
@@ -166,7 +166,7 @@ impl<'a> Lexer<'a> {
         ret
     }
 
-    pub fn chain<'c>(&'c mut self) -> Chain<'a, 'c> {
+    pub const fn chain<'c>(&'c mut self) -> Chain<'a, 'c> {
         Chain { lexer: self }
     }
 }

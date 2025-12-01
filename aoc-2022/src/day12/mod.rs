@@ -75,11 +75,7 @@ pub fn find_shortest_distance(
 ) -> util::GenericResult<(usize, usize)> {
     let mut lines = lines.peekable();
 
-    let width = lines
-        .peek()
-        .ok_or("At least one line expected")?
-        .as_bytes()
-        .len();
+    let width = lines.peek().ok_or("At least one line expected")?.len();
 
     let mut mat = VecMatrix::new(width);
     lines.for_each(|line| mat.extend(line.chars().map(Tile::of)));

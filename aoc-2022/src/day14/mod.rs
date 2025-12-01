@@ -126,7 +126,7 @@ impl Cave {
         }
     }
 
-    fn get_floor_level(&self) -> usize {
+    const fn get_floor_level(&self) -> usize {
         self.tilemap.height()
     }
 }

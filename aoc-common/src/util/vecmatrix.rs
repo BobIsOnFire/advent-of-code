@@ -36,7 +36,7 @@ impl<T> VecMatrix<T> {
     }
 
     #[must_use]
-    pub fn height(&self) -> usize {
+    pub const fn height(&self) -> usize {
         self.len() / self.width()
     }
 
@@ -49,12 +49,12 @@ impl<T> VecMatrix<T> {
     }
 
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
 
     #[must_use]
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         self.data.len()
     }
 
@@ -105,7 +105,7 @@ impl<T> VecMatrix<T> {
     }
 
     #[must_use]
-    pub fn next_down(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
+    pub const fn next_down(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
         if row >= self.height() - 1 {
             None

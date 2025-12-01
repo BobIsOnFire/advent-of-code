@@ -64,7 +64,7 @@ struct VisitData {
 }
 
 impl VisitData {
-    fn visit(&mut self, direction: Direction) {
+    const fn visit(&mut self, direction: Direction) {
         self.visits[direction as usize] = true;
     }
 
@@ -119,7 +119,7 @@ impl<'a> BeamMap<'a> {
         }
     }
 
-    fn is_empty(&self) -> bool {
+    const fn is_empty(&self) -> bool {
         self.beams.is_empty()
     }
 

@@ -33,11 +33,11 @@ pub trait ResultIteratorExtended<R, E>: Iterator<Item = Result<R, E>> + Sized {
 impl<R, E, T: Iterator<Item = Result<R, E>>> ResultIteratorExtended<R, E> for T {}
 
 pub trait ArrayIterators<T, const N: usize> {
-    fn windows_cycle(&self) -> WindowsCycle<T, N>;
+    fn windows_cycle(&self) -> WindowsCycle<'_, T, N>;
 }
 
 impl<T, const N: usize> ArrayIterators<T, N> for [T; N] {
-    fn windows_cycle(&self) -> WindowsCycle<T, N> {
+    fn windows_cycle(&self) -> WindowsCycle<'_, T, N> {
         WindowsCycle::new(self)
     }
 }

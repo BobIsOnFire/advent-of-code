@@ -7,7 +7,7 @@ impl Cpu {
         Self { cycle: 0 }
     }
 
-    pub fn next_cycle(&mut self) {
+    pub const fn next_cycle(&mut self) {
         self.cycle += 1;
     }
 
@@ -31,7 +31,7 @@ impl Register {
         Self { value }
     }
 
-    pub fn add(&mut self, value: i64) {
+    pub const fn add(&mut self, value: i64) {
         self.value += value;
     }
 
@@ -53,11 +53,7 @@ impl Screen {
         // I am using already rendered screen as internal representation to save allocations:
         // `width` bytes + newline, repeat `height` times
         let render = (0..height)
-            .flat_map(|_| {
-                std::iter::repeat(PX_DIMMED)
-                    .take(width)
-                    .chain(std::iter::once('\n'))
-            })
+            .flat_map(|_| std::iter::repeat_n(PX_DIMMED, width).chain(std::iter::once('\n')))
             .collect();
 
         Self { render, width }

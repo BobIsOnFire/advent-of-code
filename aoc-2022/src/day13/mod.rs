@@ -103,7 +103,7 @@ fn compare_arrays(left: &mut Lexer, right: &mut Lexer) -> lexer::Result<Outcome>
 
         // Are there still elements to compare in both arrays?
         match (left.literal(","), right.literal(",")) {
-            (Ok(()), Ok(())) => continue,
+            (Ok(()), Ok(())) => {}
             (Ok(()), Err(_)) => {
                 exhaust_array(left)?;
                 exhaust_array(right)?;

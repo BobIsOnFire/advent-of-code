@@ -3,8 +3,8 @@ use aoc_common::util;
 fn compress_blocks(files: &[u8], gaps: &[u8]) -> usize {
     let mut data = vec![];
     for (id, (&file_len, &gap_len)) in files.iter().zip(gaps).enumerate() {
-        data.extend(std::iter::repeat(Some(id)).take(file_len.into()));
-        data.extend(std::iter::repeat(None).take(gap_len.into()));
+        data.extend(std::iter::repeat_n(Some(id), file_len.into()));
+        data.extend(std::iter::repeat_n(None, gap_len.into()));
     }
 
     let mut gap_idx = 0;

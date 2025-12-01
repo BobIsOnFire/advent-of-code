@@ -56,7 +56,7 @@ impl<T, const N: usize> ArrayStack<T, N> {
         }
     }
 
-    pub fn pop(&mut self) -> Option<T> {
+    pub const fn pop(&mut self) -> Option<T> {
         if self.is_empty() {
             None
         } else {

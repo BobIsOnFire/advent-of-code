@@ -167,7 +167,6 @@ fn get_covered_area(moves_data: Vec<(Direction, usize)>) -> usize {
             area += extended.width() * (border.row - extended.row) as usize;
             extended.row = border.row;
             extended.col_to = border.col_to;
-            continue;
         }
     }
 

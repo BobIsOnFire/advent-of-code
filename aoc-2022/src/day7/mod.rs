@@ -23,7 +23,7 @@ where
                 fs.create_file(name, file)
                     .ok_or_else(|| format!("{line}: File already exists"))?;
             }
-        };
+        }
     }
 }
 
@@ -52,7 +52,7 @@ pub fn get_directory_sizes(
                     .ok_or_else(|| format!("{line}: dir {dir} does not exist"))?;
             }
             ListDir => list_directory(&mut fs, lines.by_ref())?,
-        };
+        }
     }
 
     let total_usage = fs.get_total_disk_usage();

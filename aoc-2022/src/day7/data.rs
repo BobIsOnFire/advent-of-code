@@ -33,7 +33,7 @@ impl Directory {
         }
     }
 
-    pub fn set_parent(&mut self, parent: Inode) {
+    pub const fn set_parent(&mut self, parent: Inode) {
         self.parent = parent;
     }
 
@@ -88,7 +88,7 @@ impl File {
         }
     }
 
-    pub fn as_directory_mut(&mut self) -> Option<&mut Directory> {
+    pub const fn as_directory_mut(&mut self) -> Option<&mut Directory> {
         match self {
             Self::PlainFile(_) => None,
             Self::Directory(dir) => Some(dir),
@@ -114,7 +114,7 @@ impl FileSystem {
         0
     }
 
-    pub fn cd_root(&mut self) {
+    pub const fn cd_root(&mut self) {
         self.change_directory(Self::root());
     }
 
@@ -180,7 +180,7 @@ impl FileSystem {
             .expect("current_inode should be a directory")
     }
 
-    fn change_directory(&mut self, inode: Inode) {
+    const fn change_directory(&mut self, inode: Inode) {
         self.current_inode = inode;
     }
 

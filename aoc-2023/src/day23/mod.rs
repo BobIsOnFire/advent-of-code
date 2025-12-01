@@ -42,7 +42,7 @@ impl From<char> for Tile {
     }
 }
 
-fn next_idx(
+const fn next_idx(
     tilemap: &VecMatrix<Tile>,
     idx: MatrixIndex,
     direction: Direction,

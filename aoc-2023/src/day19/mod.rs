@@ -68,7 +68,7 @@ impl Detail {
         &self.rating[category as usize]
     }
 
-    fn get_rating_mut(&mut self, category: Category) -> &mut usize {
+    const fn get_rating_mut(&mut self, category: Category) -> &mut usize {
         &mut self.rating[category as usize]
     }
 
@@ -91,7 +91,7 @@ impl DetailRange {
         &self.rating_ranges[category as usize]
     }
 
-    fn get_rating_range_mut(&mut self, category: Category) -> &mut (usize, usize) {
+    const fn get_rating_range_mut(&mut self, category: Category) -> &mut (usize, usize) {
         &mut self.rating_ranges[category as usize]
     }
 

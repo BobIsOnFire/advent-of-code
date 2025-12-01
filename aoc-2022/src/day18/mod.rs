@@ -86,7 +86,7 @@ impl Surface {
             Y_DOWN => result.block.y -= 1,
             Z_UP => result.block.z += 1,
             Z_DOWN => result.block.z -= 1,
-        };
+        }
 
         result
     }

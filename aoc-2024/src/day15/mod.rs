@@ -104,7 +104,11 @@ impl Map {
         }
     }
 
-    fn next_position(&self, position: MatrixIndex, direction: Direction) -> Option<MatrixIndex> {
+    const fn next_position(
+        &self,
+        position: MatrixIndex,
+        direction: Direction,
+    ) -> Option<MatrixIndex> {
         match direction {
             Direction::Up => self.tilemap.next_up(position),
             Direction::Right => self.tilemap.next_right(position),
@@ -113,7 +117,11 @@ impl Map {
         }
     }
 
-    fn next_position_checked(&self, position: MatrixIndex, direction: Direction) -> MatrixIndex {
+    const fn next_position_checked(
+        &self,
+        position: MatrixIndex,
+        direction: Direction,
+    ) -> MatrixIndex {
         self.next_position(position, direction)
             .expect("Cannot move out of bounds")
     }
@@ -135,7 +143,7 @@ impl Map {
 
                     match self.tilemap[next_empty] {
                         Tile::Robot => panic!("More than one robot on the map"),
-                        Tile::Box => continue,
+                        Tile::Box => {}
                         // line of boxes ends with a wall, this is a move failure
                         Tile::Wall => break,
                         // line of boxes ends with an empty tile, move boxes and then move ourselves

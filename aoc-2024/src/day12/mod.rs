@@ -15,7 +15,11 @@ enum Side {
     Right,
 }
 
-fn next_tile(tilemap: &VecMatrix<char>, tile: MatrixIndex, side: Side) -> Option<MatrixIndex> {
+const fn next_tile(
+    tilemap: &VecMatrix<char>,
+    tile: MatrixIndex,
+    side: Side,
+) -> Option<MatrixIndex> {
     match side {
         Side::Top => tilemap.next_up(tile),
         Side::Bottom => tilemap.next_down(tile),

@@ -22,7 +22,7 @@ fn get_edges(
         Right,
     }
 
-    fn next_idx(
+    const fn next_idx(
         tilemap: &VecMatrix<u8>,
         coord: MatrixIndex,
         direction: Direction,

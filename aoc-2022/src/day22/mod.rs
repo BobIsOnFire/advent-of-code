@@ -22,7 +22,7 @@ fn flat_mapping(tilemap: &TileMap) -> BoundsMapping {
             .filter(|coord| tilemap[*coord].is_some());
 
         let first = tile_coords_iter.next().unwrap_or(Coord { row, col: 0 });
-        let last = tile_coords_iter.last().unwrap_or(first);
+        let last = tile_coords_iter.next_back().unwrap_or(first);
 
         bounds.right.push((first, Direction::Right));
         bounds.left.push((last, Direction::Left));
@@ -34,7 +34,7 @@ fn flat_mapping(tilemap: &TileMap) -> BoundsMapping {
             .filter(|coord| tilemap[*coord].is_some());
 
         let first = tile_coords_iter.next().unwrap_or(Coord { row: 0, col });
-        let last = tile_coords_iter.last().unwrap_or(first);
+        let last = tile_coords_iter.next_back().unwrap_or(first);
 
         bounds.down.push((first, Direction::Down));
         bounds.up.push((last, Direction::Up));
@@ -97,7 +97,7 @@ impl Board {
         }
     }
 
-    fn turn_clockwise(&mut self) {
+    const fn turn_clockwise(&mut self) {
         self.direction = match self.direction {
             Direction::Right => Direction::Down,
             Direction::Down => Direction::Left,
@@ -106,7 +106,7 @@ impl Board {
         };
     }
 
-    fn turn_counter_clockwise(&mut self) {
+    const fn turn_counter_clockwise(&mut self) {
         self.direction = match self.direction {
             Direction::Right => Direction::Up,
             Direction::Up => Direction::Left,

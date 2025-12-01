@@ -59,10 +59,7 @@ impl Error {
     pub fn parse_error(lexer: &Lexer<'_>, error: &ParseIntError) -> Self {
         Self {
             str: lexer.s.to_owned(),
-            kind: ErrorKind::ParseIntError {
-                at: lexer.pos,
-                kind: error.kind().clone(),
-            },
+            kind: ErrorKind::ParseIntError { at: lexer.pos, kind: *error.kind() },
         }
     }
 }

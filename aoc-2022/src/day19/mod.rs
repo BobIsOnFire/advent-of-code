@@ -42,7 +42,7 @@ impl<T> ResourceMapping<T> {
         &self.data[res_type as usize]
     }
 
-    fn get_mut(&mut self, res_type: ResourceType) -> &mut T {
+    const fn get_mut(&mut self, res_type: ResourceType) -> &mut T {
         &mut self.data[res_type as usize]
     }
 }

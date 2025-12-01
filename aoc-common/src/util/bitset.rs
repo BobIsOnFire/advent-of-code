@@ -11,7 +11,7 @@ impl BitSet {
         Self { mask: 0 }
     }
 
-    pub fn insert(&mut self, key: u64) {
+    pub const fn insert(&mut self, key: u64) {
         self.mask |= 1u64 << key;
     }
 

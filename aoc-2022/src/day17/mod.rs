@@ -117,7 +117,7 @@ impl Piece {
         ]
     }
 
-    fn height(&self) -> usize {
+    const fn height(&self) -> usize {
         self.data.len()
     }
 }
@@ -136,7 +136,7 @@ impl Chamber {
         self.tilemap.push(create_walls::<9>());
     }
 
-    fn height(&self) -> usize {
+    const fn height(&self) -> usize {
         self.tilemap.len()
     }
 
@@ -168,7 +168,7 @@ impl Chamber {
             RockMove::Down => row -= 1,
             RockMove::Left => col -= 1,
             RockMove::Right => col += 1,
-        };
+        }
 
         for (row_num, &row_data) in piece.data.iter().enumerate() {
             if self.get_chamber_row(row + row_num) & (row_data << col) != 0 {
@@ -215,7 +215,7 @@ pub fn tetris_simulator(
                     RockMove::Left => rock_position.col -= 1,
                     RockMove::Right => rock_position.col += 1,
                     RockMove::Down => (),
-                };
+                }
             }
 
             if chamber.check_collision(&shape, rock_position, RockMove::Down) {
