@@ -9,7 +9,7 @@ if ! test $num; then
     exit 1
 fi
 
-year=$2; test $year || year=2024
+year=$2; test $year || year=2025
 
 cd aoc-${year}
 # Prepare directories
@@ -47,11 +47,11 @@ EOF
 cat <<EOF >>Cargo.toml
 
 [[bin]]
-name = "day${num}"
+name = "aoc-${year}-day${num}"
 path = "bin/day${num}.rs"
 EOF
 
 # Format code, verify that template works
 
 cargo fmt
-cargo run --bin=day${num}
+cargo run --bin=aoc-${year}-day${num}

@@ -7,93 +7,93 @@ edition = "2021"
 aoc-common = { path = "../aoc-common" }
 
 [[bin]]
-name = "day1"
+name = "aoc-2022-day1"
 path = "bin/day1.rs"
 
 [[bin]]
-name = "day2"
+name = "aoc-2022-day2"
 path = "bin/day2.rs"
 
 [[bin]]
-name = "day3"
+name = "aoc-2022-day3"
 path = "bin/day3.rs"
 
 [[bin]]
-name = "day4"
+name = "aoc-2022-day4"
 path = "bin/day4.rs"
 
 [[bin]]
-name = "day5"
+name = "aoc-2022-day5"
 path = "bin/day5.rs"
 
 [[bin]]
-name = "day6"
+name = "aoc-2022-day6"
 path = "bin/day6.rs"
 
 [[bin]]
-name = "day7"
+name = "aoc-2022-day7"
 path = "bin/day7.rs"
 
 [[bin]]
-name = "day8"
+name = "aoc-2022-day8"
 path = "bin/day8.rs"
 
 [[bin]]
-name = "day9"
+name = "aoc-2022-day9"
 path = "bin/day9.rs"
 
 [[bin]]
-name = "day10"
+name = "aoc-2022-day10"
 path = "bin/day10.rs"
 
 [[bin]]
-name = "day12"
+name = "aoc-2022-day12"
 path = "bin/day12.rs"
 
 [[bin]]
-name = "day13"
+name = "aoc-2022-day13"
 path = "bin/day13.rs"
 
 [[bin]]
-name = "day14"
+name = "aoc-2022-day14"
 path = "bin/day14.rs"
 
 [[bin]]
-name = "day15"
+name = "aoc-2022-day15"
 path = "bin/day15.rs"
 
 [[bin]]
-name = "day17"
+name = "aoc-2022-day17"
 path = "bin/day17.rs"
 
 [[bin]]
-name = "day18"
+name = "aoc-2022-day18"
 path = "bin/day18.rs"
 
 [[bin]]
-name = "day19"
+name = "aoc-2022-day19"
 path = "bin/day19.rs"
 
 [[bin]]
-name = "day20"
+name = "aoc-2022-day20"
 path = "bin/day20.rs"
 
 [[bin]]
-name = "day21"
+name = "aoc-2022-day21"
 path = "bin/day21.rs"
 
 [[bin]]
-name = "day22"
+name = "aoc-2022-day22"
 path = "bin/day22.rs"
 
 [[bin]]
-name = "day23"
+name = "aoc-2022-day23"
 path = "bin/day23.rs"
 
 [[bin]]
-name = "day24"
+name = "aoc-2022-day24"
 path = "bin/day24.rs"
 
 [[bin]]
-name = "day25"
+name = "aoc-2022-day25"
 path = "bin/day25.rs"
