@@ -9,3 +9,7 @@ aoc-common = { path = "../aoc-common" }
 [[bin]]
 name = "aoc-2025-day1"
 path = "bin/day1.rs"
+
+[[bin]]
+name = "aoc-2025-day2"
+path = "bin/day2.rs"
