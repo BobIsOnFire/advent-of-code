@@ -1,7 +1,7 @@
 mod data;
 use data::Match;
 
-use aoc_common::util::{self, lexer, Lexer};
+use aoc_common::util::{self, Lexer, lexer};
 
 fn parse_match_line(s: &str) -> lexer::Result<(char, char)> {
     let mut lexer = Lexer::of(s);

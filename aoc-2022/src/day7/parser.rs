@@ -1,4 +1,4 @@
-use aoc_common::util::{lexer, Lexer};
+use aoc_common::util::{Lexer, lexer};
 
 use super::data::File;
 

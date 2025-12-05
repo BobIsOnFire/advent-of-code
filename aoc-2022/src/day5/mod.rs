@@ -6,7 +6,7 @@ use errors::CrateInputError::{
 
 mod parser;
 
-use aoc_common::util::{self, lexer::Lexer, ArrayStack};
+use aoc_common::util::{self, ArrayStack, lexer::Lexer};
 
 fn get_initial_stacks<const N: usize>(
     lines: &mut impl Iterator<Item = String>,
@@ -43,11 +43,7 @@ fn get_pair_mut<T>(slice: &mut [T], i: usize, j: usize) -> (&mut T, &mut T) {
     let first_ref = &mut x[first];
     let second_ref = &mut y[0];
 
-    if i < j {
-        (first_ref, second_ref)
-    } else {
-        (second_ref, first_ref)
-    }
+    if i < j { (first_ref, second_ref) } else { (second_ref, first_ref) }
 }
 
 fn move_elements<T, const S: usize>(

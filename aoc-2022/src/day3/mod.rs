@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use aoc_common::util::{self, iter::IteratorExtended, BitSet};
+use aoc_common::util::{self, BitSet, iter::IteratorExtended};
 
 const fn get_priority(ch: char) -> u64 {
     match ch {

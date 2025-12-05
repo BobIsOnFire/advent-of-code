@@ -77,11 +77,7 @@ impl<T> VecMatrix<T> {
     #[must_use]
     pub const fn next_left(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
-        if col == 0 {
-            None
-        } else {
-            Some(MatrixIndex { row, col: col - 1 })
-        }
+        if col == 0 { None } else { Some(MatrixIndex { row, col: col - 1 }) }
     }
 
     #[must_use]
@@ -97,11 +93,7 @@ impl<T> VecMatrix<T> {
     #[must_use]
     pub const fn next_up(&self, idx: MatrixIndex) -> Option<MatrixIndex> {
         let MatrixIndex { row, col } = idx;
-        if row == 0 {
-            None
-        } else {
-            Some(MatrixIndex { row: row - 1, col })
-        }
+        if row == 0 { None } else { Some(MatrixIndex { row: row - 1, col }) }
     }
 
     #[must_use]
@@ -142,11 +134,7 @@ impl<T> VecMatrix<T> {
     }
 
     const fn get_flat_idx(&self, idx: MatrixIndex) -> Option<usize> {
-        if idx.col >= self.width {
-            None
-        } else {
-            Some(idx.row * self.width + idx.col)
-        }
+        if idx.col >= self.width { None } else { Some(idx.row * self.width + idx.col) }
     }
 }
 

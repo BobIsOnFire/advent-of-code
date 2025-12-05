@@ -49,11 +49,7 @@ impl BitXor<Self> for WireState {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        if self == rhs {
-            Self::Off
-        } else {
-            Self::On
-        }
+        if self == rhs { Self::Off } else { Self::On }
     }
 }
 
@@ -264,7 +260,9 @@ fn verify_addition(device: &Device, bits: usize) {
         } else if is_bit_carry(device, carry_gate.inputs.1, bit) {
             carry_gate.inputs.0
         } else {
-            panic!("Carry #{bit} ({carry_name}): one of operands should be a result of (x{bit:02} And y{bit:02})")
+            panic!(
+                "Carry #{bit} ({carry_name}): one of operands should be a result of (x{bit:02} And y{bit:02})"
+            )
         };
 
         let prev_sum_name = &device.wires[prev_carry_sum];
@@ -280,7 +278,15 @@ fn verify_addition(device: &Device, bits: usize) {
 
         let result_id = device.wire_name_to_id.get(&format!("z{bit:02}")).unwrap();
         assert!(
-            gate_matches(device, (&device.wires[prev_sum_gate.inputs.0], &device.wires[prev_sum_gate.inputs.1]), *result_id, GateKind::Xor),
+            gate_matches(
+                device,
+                (
+                    &device.wires[prev_sum_gate.inputs.0],
+                    &device.wires[prev_sum_gate.inputs.1]
+                ),
+                *result_id,
+                GateKind::Xor
+            ),
             "Prev carry sum #{bit} ({prev_sum_name}): its inputs are not Xor'ed to make a result z{bit:02}"
         );
 
@@ -289,7 +295,9 @@ fn verify_addition(device: &Device, bits: usize) {
         } else if is_bit_sum(device, prev_sum_gate.inputs.1, bit) {
             prev_sum_gate.inputs.0
         } else {
-            panic!("Prev carry sum #{bit} ({prev_sum_name}): one of operands should be a result of (x{bit:02} Xor y{bit:02})")
+            panic!(
+                "Prev carry sum #{bit} ({prev_sum_name}): one of operands should be a result of (x{bit:02} Xor y{bit:02})"
+            )
         };
 
         carry = prev_carry;

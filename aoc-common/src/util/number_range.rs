@@ -25,11 +25,7 @@ impl NumberRange {
 
     #[must_use]
     pub const fn new(from: i64, to: i64) -> Self {
-        if from <= to {
-            Self::NonEmpty(from, to)
-        } else {
-            Self::Empty
-        }
+        if from <= to { Self::NonEmpty(from, to) } else { Self::Empty }
     }
 
     // Total ordering based on the range start. Empty ranges are always equal to each other and less than non-empty
@@ -57,11 +53,7 @@ impl BitAnd for NumberRange {
                 let from = Ord::max(my_from, other_from);
                 let to = Ord::min(my_to, other_to);
 
-                if from <= to {
-                    Self::NonEmpty(from, to)
-                } else {
-                    Self::Empty
-                }
+                if from <= to { Self::NonEmpty(from, to) } else { Self::Empty }
             }
         }
     }

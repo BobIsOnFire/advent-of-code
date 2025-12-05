@@ -145,11 +145,7 @@ pub fn find_enclosing_loop(
                 .expect("Main loop cannot be broken");
             let idx =
                 next_idx(&tilemap, *idx, direction).expect("Main loop cannot go out of bounds");
-            if idx == start_idx {
-                None
-            } else {
-                Some((idx, direction))
-            }
+            if idx == start_idx { None } else { Some((idx, direction)) }
         })
         .map(|(idx, _)| idx)
         .collect::<HashSet<_>>();

@@ -1,7 +1,6 @@
 use aoc_common::util::{
-    self,
+    self, NumberRange,
     lexer::{self, Lexer},
-    NumberRange,
 };
 
 #[derive(Default)]

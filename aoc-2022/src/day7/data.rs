@@ -1,6 +1,6 @@
 use std::{
     cell::RefCell,
-    collections::{hash_map::Entry, HashMap},
+    collections::{HashMap, hash_map::Entry},
 };
 
 use aoc_common::util::iter::IteratorExtended;

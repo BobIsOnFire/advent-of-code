@@ -1,4 +1,4 @@
-use aoc_common::util::{self, iter::ResultIteratorExtended, lexer, Lexer};
+use aoc_common::util::{self, Lexer, iter::ResultIteratorExtended, lexer};
 
 fn parse_food_line(s: &str) -> lexer::Result<Option<usize>> {
     let mut lexer = Lexer::of(s);

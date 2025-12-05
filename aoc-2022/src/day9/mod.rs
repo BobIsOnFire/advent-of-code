@@ -41,11 +41,7 @@ impl<const N: usize> Rope<N> {
             let change_abs = if diff_abs.0 < 2 && diff_abs.1 < 2 {
                 Coords(0, 0)
             } else if diff_abs.0 == 2 {
-                if diff_abs.1 > 0 {
-                    Coords(1, 1)
-                } else {
-                    Coords(1, 0)
-                }
+                if diff_abs.1 > 0 { Coords(1, 1) } else { Coords(1, 0) }
             } else if diff_abs.0 == 1 {
                 Coords(1, 1)
             } else {

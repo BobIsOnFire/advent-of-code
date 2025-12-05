@@ -88,11 +88,12 @@ fn get_region(
                 }
             }
 
-            if let Some(neighbor) = next_tile(tilemap, tile, side) {
-                if tilemap[tile] == tilemap[neighbor] && region_ids[neighbor] == 0 {
-                    region_ids[neighbor] = id;
-                    tile_stack.push(neighbor);
-                }
+            if let Some(neighbor) = next_tile(tilemap, tile, side)
+                && tilemap[tile] == tilemap[neighbor]
+                && region_ids[neighbor] == 0
+            {
+                region_ids[neighbor] = id;
+                tile_stack.push(neighbor);
             }
         }
     }

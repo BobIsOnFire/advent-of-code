@@ -49,11 +49,7 @@ impl<T, const N: usize> ArrayStack<T, N> {
     }
 
     pub const fn top(&self) -> Option<&T> {
-        if self.is_empty() {
-            None
-        } else {
-            self.array[self.head - 1].as_ref()
-        }
+        if self.is_empty() { None } else { self.array[self.head - 1].as_ref() }
     }
 
     pub const fn pop(&mut self) -> Option<T> {

@@ -1,4 +1,4 @@
-use aoc_common::util::{self, lexer, Lexer};
+use aoc_common::util::{self, Lexer, lexer};
 
 #[derive(Debug)]
 enum Outcome {

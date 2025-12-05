@@ -4,7 +4,7 @@ mod array_stack;
 pub use array_stack::ArrayStack;
 
 mod bisect;
-pub use bisect::{bisect, Bisect};
+pub use bisect::{Bisect, bisect};
 
 mod bitset;
 pub use bitset::BitSet;

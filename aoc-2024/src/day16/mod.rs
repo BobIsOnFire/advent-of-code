@@ -126,13 +126,14 @@ fn find_fastest_path(
             lowest_cost.entry(to.idx).or_insert(cost);
             entry_from.entry(to.clone()).or_default().push(from.clone());
 
-            if let Some(next) = to.try_forward(tilemap) {
-                if tilemap[next.idx] != Tile::Wall && !visited.contains(&next) {
-                    to_visit
-                        .entry(cost + 1)
-                        .or_default()
-                        .push((to.clone(), next));
-                }
+            if let Some(next) = to.try_forward(tilemap)
+                && tilemap[next.idx] != Tile::Wall
+                && !visited.contains(&next)
+            {
+                to_visit
+                    .entry(cost + 1)
+                    .or_default()
+                    .push((to.clone(), next));
             }
             let right = to.right();
             if !visited.contains(&right) {

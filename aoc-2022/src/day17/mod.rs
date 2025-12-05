@@ -141,11 +141,7 @@ impl Chamber {
     }
 
     fn get_chamber_row(&self, row: usize) -> u16 {
-        if row < self.tilemap.len() {
-            self.tilemap[row]
-        } else {
-            create_walls::<9>()
-        }
+        if row < self.tilemap.len() { self.tilemap[row] } else { create_walls::<9>() }
     }
 
     fn place(&mut self, piece: &Piece, at: MatrixIndex) {
