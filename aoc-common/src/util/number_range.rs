@@ -40,6 +40,22 @@ impl NumberRange {
             }
         }
     }
+
+    #[must_use]
+    pub const fn contains(&self, num: i64) -> Ordering {
+        match self {
+            Self::Empty => Ordering::Greater,
+            Self::NonEmpty(from, to) => {
+                if num < *from {
+                    Ordering::Less
+                } else if num > *to {
+                    Ordering::Greater
+                } else {
+                    Ordering::Equal
+                }
+            }
+        }
+    }
 }
 
 impl BitAnd for NumberRange {
