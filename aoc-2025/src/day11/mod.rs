@@ -88,7 +88,9 @@ impl DeviceMap {
     }
 }
 
-pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn find_faulty_paths(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut device_map = DeviceMap::new();
 
     for line in lines {

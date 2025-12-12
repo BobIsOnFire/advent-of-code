@@ -1,6 +1,8 @@
 use aoc_common::util;
 
-pub fn fit_presents(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, &'static str)> {
+pub fn fit_presents(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, &'static str)> {
     let mut fit_count = 0;
 
     // As Reddit said, the input is very lenient, and presents fit if area is large enough (present count x 7)

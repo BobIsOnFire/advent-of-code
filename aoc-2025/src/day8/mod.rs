@@ -81,7 +81,7 @@ struct Distance {
     distance: usize,
 }
 
-pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn connect_boxes(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
     let coords = lines
         .map(|line| parse_coord(&line))
         .collect::<Result<Vec<_>, _>>()?;

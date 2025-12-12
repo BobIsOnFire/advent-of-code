@@ -62,7 +62,9 @@ fn is_line_in_bounds(bounds: &[(usize, Direction)], from: usize, to: usize) -> b
     false
 }
 
-pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn find_largest_rectangle(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let coords = lines
         .map(|line| parse_coord(&line))
         .collect::<Result<Vec<_>, _>>()?;

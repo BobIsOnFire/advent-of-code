@@ -87,7 +87,9 @@ impl Solver {
     }
 }
 
-pub fn get_answer(lines: impl Iterator<Item = String>) -> util::GenericResult<(usize, usize)> {
+pub fn count_button_presses(
+    lines: impl Iterator<Item = String>,
+) -> util::GenericResult<(usize, usize)> {
     let mut total_presses_lights = 0;
     let mut total_presses_joltages = 0;
 
