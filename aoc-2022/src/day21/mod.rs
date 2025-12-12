@@ -138,16 +138,13 @@ impl MonkeySet {
 
     fn get_result_by_id(&self, id: Id) -> i64 {
         let cached_result = self.operation_cache.borrow().get(&id).copied();
-        cached_result.map_or_else(
-            || {
-                let num = self
-                    .get_job_by_id(id)
-                    .get_result_by(|id| self.get_result_by_id(id));
-                self.operation_cache.borrow_mut().insert(id, num);
-                num
-            },
-            |num| num,
-        )
+        cached_result.unwrap_or_else(|| {
+            let num = self
+                .get_job_by_id(id)
+                .get_result_by(|id| self.get_result_by_id(id));
+            self.operation_cache.borrow_mut().insert(id, num);
+            num
+        })
     }
 
     fn check_depends_by_id(&self, id: Id, check_id: Id) -> bool {
@@ -155,18 +152,15 @@ impl MonkeySet {
             true
         } else {
             let cached_depends = self.depends_cache.borrow().get(&id).copied();
-            cached_depends.map_or_else(
-                || {
-                    let depends = self
-                        .get_job_by_id(id)
-                        .check_depends(check_id, |id, check_id| {
-                            self.check_depends_by_id(id, check_id)
-                        });
-                    self.depends_cache.borrow_mut().insert(id, depends);
-                    depends
-                },
-                |depends| depends,
-            )
+            cached_depends.unwrap_or_else(|| {
+                let depends = self
+                    .get_job_by_id(id)
+                    .check_depends(check_id, |id, check_id| {
+                        self.check_depends_by_id(id, check_id)
+                    });
+                self.depends_cache.borrow_mut().insert(id, depends);
+                depends
+            })
         }
     }
 
